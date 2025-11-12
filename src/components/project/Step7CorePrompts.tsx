@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Users, Check } from 'lucide-react'
+import { Loader2, Users } from 'lucide-react'
 
 export default function Step7CorePrompts({ project, onNext, onUpdate }: any) {
   const [generating, setGenerating] = useState(false)

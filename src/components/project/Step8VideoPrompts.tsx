@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Loader2, Film, Check, Download } from 'lucide-react'
 
-export default function Step8VideoPrompts({ project, onNext, onUpdate }: any) {
+export default function Step8VideoPrompts({ project, onUpdate }: any) {
   const [generating, setGenerating] = useState(false)
   const [videoPrompts, setVideoPrompts] = useState(project.videoPrompts || [])
 
