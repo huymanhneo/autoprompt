@@ -11,25 +11,38 @@ function App() {
   const [isSetupComplete, setIsSetupComplete] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  console.log('[App] State:', { isSetupComplete, isLoading })
+
   useEffect(() => {
+    console.log('[App] useEffect triggered - checking setup status')
     checkSetupStatus()
   }, [])
 
   const checkSetupStatus = async () => {
     try {
+      console.log('[App] Fetching settings...')
       const settings = await window.electronAPI.getSettings()
+      console.log('[App] Settings received:', settings)
       // Check if LLM API key is configured
       const hasApiKey = settings?.llm?.apiKey && settings.llm.apiKey.length > 0
+      console.log('[App] Has API key:', hasApiKey)
       setIsSetupComplete(hasApiKey)
     } catch (error) {
-      console.error('Error checking setup status:', error)
+      console.error('[App] Error checking setup status:', error)
       setIsSetupComplete(false)
     } finally {
+      console.log('[App] Setting isLoading to false')
       setIsLoading(false)
     }
   }
 
+  const handleSetupComplete = () => {
+    console.log('[App] Setup completed, setting isSetupComplete to true')
+    setIsSetupComplete(true)
+  }
+
   if (isLoading) {
+    console.log('[App] Rendering: Loading screen')
     return (
       <div className="flex items-center justify-center h-screen bg-slate-900">
         <div className="text-center">
@@ -41,9 +54,11 @@ function App() {
   }
 
   if (!isSetupComplete) {
-    return <SetupWizard onComplete={() => setIsSetupComplete(true)} />
+    console.log('[App] Rendering: Setup Wizard')
+    return <SetupWizard onComplete={handleSetupComplete} />
   }
 
+  console.log('[App] Rendering: Main App')
   return (
     <Router>
       <Routes>

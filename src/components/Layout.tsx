@@ -4,6 +4,8 @@ import { Home, Settings, Film } from 'lucide-react'
 export default function Layout() {
   const location = useLocation()
 
+  console.log('[Layout] Rendering, location:', location.pathname)
+
   const isActive = (path: string) => {
     return location.pathname === path
   }

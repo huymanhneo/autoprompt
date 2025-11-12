@@ -16,18 +16,24 @@ export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [showNewProjectModal, setShowNewProjectModal] = useState(false)
 
+  console.log('[HomePage] Rendering, projects count:', projects.length)
+
   useEffect(() => {
+    console.log('[HomePage] useEffect triggered - loading projects')
     loadProjects()
   }, [])
 
   const loadProjects = async () => {
     try {
+      console.log('[HomePage] Fetching projects...')
       const result = await window.electronAPI.listProjects()
+      console.log('[HomePage] Projects result:', result)
       if (result.success) {
         setProjects(result.data)
+        console.log('[HomePage] Projects set:', result.data)
       }
     } catch (error) {
-      console.error('Error loading projects:', error)
+      console.error('[HomePage] Error loading projects:', error)
     }
   }
 
