@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
-    "build:win": "npm run build -- --win",
+    "build:win": "set CSC_IDENTITY_AUTO_DISCOVERY=false && npm run build -- --win",
     "build:mac": "npm run build -- --mac",
     "build:linux": "npm run build -- --linux",
     "preview": "vite preview",
@@ -83,8 +83,8 @@
     },
     "win": {
       "target": ["nsis", "portable"],
-      "signingHashAlgorithms": ["sha256"],
-      "sign": null
+      "sign": null,
+      "verifyUpdateCodeSignature": false
     },
     "linux": {
       "target": ["AppImage", "deb", "rpm"],
