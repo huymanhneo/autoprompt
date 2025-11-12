@@ -198,20 +198,24 @@ ipcMain.handle('fs:readFile', async (_event, filePath) => {
 // Settings Handlers
 ipcMain.handle('settings:get', async () => {
   try {
+    console.log('[IPC] Getting settings...')
     const settings = getServiceManager().getSettings()
+    console.log('[IPC] Settings retrieved:', settings)
     return settings
   } catch (error: any) {
-    console.error('Error getting settings:', error)
-    throw new Error(error.message)
+    console.error('[IPC] Error getting settings:', error)
+    throw new Error(error.message || 'Failed to get settings')
   }
 })
 
 ipcMain.handle('settings:update', async (_event, settings) => {
   try {
+    console.log('[IPC] Updating settings with:', settings)
     getServiceManager().updateSettings(settings)
+    console.log('[IPC] Settings updated successfully')
     return { success: true }
   } catch (error: any) {
-    console.error('Error updating settings:', error)
-    throw new Error(error.message)
+    console.error('[IPC] Error updating settings:', error)
+    throw new Error(error.message || 'Failed to update settings')
   }
 })

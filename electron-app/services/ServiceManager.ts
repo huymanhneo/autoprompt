@@ -116,18 +116,36 @@ export class ServiceManager {
   }
 
   updateSettings(settings: Partial<AppSettings>): void {
-    if (settings.llm) {
-      this.store.set('llm', { ...this.store.get('llm'), ...settings.llm })
-      this.initializeLLM()
-    }
+    try {
+      console.log('[ServiceManager] Updating settings:', settings)
 
-    if (settings.tts) {
-      this.store.set('tts', { ...this.store.get('tts'), ...settings.tts })
-      this.initializeTTS()
-    }
+      if (settings.llm) {
+        const currentLLM = this.store.get('llm')
+        const newLLM = { ...currentLLM, ...settings.llm }
+        console.log('[ServiceManager] Saving LLM settings:', newLLM)
+        this.store.set('llm', newLLM)
+        this.initializeLLM()
+      }
 
-    if (settings.audio) {
-      this.store.set('audio', { ...this.store.get('audio'), ...settings.audio })
+      if (settings.tts) {
+        const currentTTS = this.store.get('tts')
+        const newTTS = { ...currentTTS, ...settings.tts }
+        console.log('[ServiceManager] Saving TTS settings:', newTTS)
+        this.store.set('tts', newTTS)
+        this.initializeTTS()
+      }
+
+      if (settings.audio) {
+        const currentAudio = this.store.get('audio')
+        const newAudio = { ...currentAudio, ...settings.audio }
+        console.log('[ServiceManager] Saving Audio settings:', newAudio)
+        this.store.set('audio', newAudio)
+      }
+
+      console.log('[ServiceManager] Settings updated successfully')
+    } catch (error: any) {
+      console.error('[ServiceManager] Error updating settings:', error)
+      throw new Error(`Failed to update settings: ${error.message}`)
     }
   }
 

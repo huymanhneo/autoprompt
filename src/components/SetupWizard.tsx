@@ -41,12 +41,15 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       // Final step - save and complete
       setLoading(true)
       try {
-        await window.electronAPI.updateSettings(config)
+        console.log('Saving settings:', config)
+        const result = await window.electronAPI.updateSettings(config)
+        console.log('Settings saved successfully:', result)
         setTimeout(() => {
           onComplete()
         }, 1500)
-      } catch (error) {
-        alert('Lỗi khi lưu cấu hình')
+      } catch (error: any) {
+        console.error('Error saving settings:', error)
+        alert(`Lỗi khi lưu cấu hình:\n${error?.message || error}`)
         setLoading(false)
       }
     }
