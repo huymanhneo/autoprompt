@@ -1,0 +1,53 @@
+{
+  appId: "com.youtube.video.automation",
+  productName: "YouTube Video Automation",
+  directories: {
+    output: "release"
+  },
+  files: [
+    "dist/**/*",
+    "dist-electron/**/*",
+    "package.json"
+  ],
+  // Explicitly disable code signing globally
+  forceCodeSigning: false,
+
+  mac: {
+    target: ["dmg", "zip"],
+    category: "public.app-category.productivity",
+    identity: null
+  },
+
+  win: {
+    target: [
+      {
+        target: "nsis",
+        arch: ["x64"]
+      },
+      {
+        target: "portable",
+        arch: ["x64"]
+      }
+    ],
+    // Multiple ways to disable signing
+    sign: null,
+    signtoolOptions: null,
+    certificateFile: null,
+    certificatePassword: null,
+    verifyUpdateCodeSignature: false,
+    // This is key - don't request signing certificate
+    signDlls: false
+  },
+
+  linux: {
+    target: ["AppImage", "deb", "rpm"],
+    category: "Utility"
+  },
+
+  // Disable code signing for all platforms
+  afterSign: null,
+
+  // Prevent automatic certificate discovery
+  cscLink: null,
+  cscKeyPassword: null
+}
