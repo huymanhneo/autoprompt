@@ -74,38 +74,75 @@
 
 ## 🚀 Cài đặt và chạy
 
-### 1. Clone repository
+### ⚡ Cài đặt 1-Click (Khuyến nghị)
+
+#### **Windows:**
+1. Mở Command Prompt hoặc PowerShell
+2. Chạy script cài đặt tự động:
+   ```cmd
+   install.bat
+   ```
+
+#### **macOS / Linux:**
+1. Mở Terminal
+2. Chạy script cài đặt tự động:
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
+
+Script sẽ tự động:
+- ✅ Kiểm tra Node.js
+- ✅ Cài đặt FFmpeg (nếu chưa có)
+- ✅ Cài đặt tất cả dependencies
+- ✅ Sẵn sàng để chạy!
+
+---
+
+### 🔧 Cài đặt thủ công (Nếu script không hoạt động)
+
+#### 1. Clone repository
 
 ```bash
 git clone <repository-url>
 cd autoprompt
 ```
 
-### 2. Cài đặt dependencies
+#### 2. Cài đặt dependencies
 
 ```bash
-npm install
+npm install --legacy-peer-deps
 ```
 
 **Lưu ý**: Quá trình cài đặt có thể mất 5-10 phút do cần tải Electron binary (~100MB).
 
-### 3. Cấu hình API Keys
-
-Khi chạy app lần đầu, vào **Settings** và nhập:
-
-- **LLM API Key**: Gemini API key
-- **TTS Provider**: Chọn provider và nhập API key (nếu cần)
-
-### 4. Chạy ở chế độ development
+#### 3. Chạy ứng dụng
 
 ```bash
 npm run electron:dev
 ```
 
-App sẽ tự động mở với:
-- Vite dev server: `http://localhost:5173`
-- Hot reload cho cả React và Electron
-- DevTools tự động mở
+---
+
+### 🎯 Cấu hình lần đầu
+
+Khi mở app lần đầu, **Setup Wizard** sẽ tự động xuất hiện và hướng dẫn bạn:
+
+1. **Bước 1**: Nhập Google Gemini API Key
+   - Lấy API key miễn phí tại: https://makersuite.google.com/app/apikey
+
+2. **Bước 2**: Chọn TTS Provider (Text-to-Speech)
+   - Google TTS (miễn phí, khuyến nghị)
+   - ElevenLabs (trả phí, chất lượng cao)
+   - FPT AI / Viettel AI (miễn phí, giọng Việt)
+
+3. **Bước 3**: Điều chỉnh cài đặt Audio
+   - Độ dài mỗi cảnh video (mặc định 8 giây)
+   - Bitrate audio (khuyến nghị 192kbps)
+
+**Hoàn tất!** - App sẽ tự động lưu cấu hình và sẵn sàng sử dụng.
+
+> ⚙️ Bạn có thể thay đổi cấu hình bất kỳ lúc nào trong **Settings**.
 
 ## 📦 Build ứng dụng
 
@@ -405,6 +442,7 @@ MIT License - xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 
 ---
 
-**Phát triển bởi**: Your Name
-**Email**: your.email@example.com
+**Phát triển bởi**: Mr.Mạnh
+**Liên hệ**: [0979.121.097](tel:0979121097)
 **Version**: 1.0.0 (MVP - PHASE 1-2 Completed)
+**Copyright**: © 2024 YouTube Video Automation. All Rights Reserved.

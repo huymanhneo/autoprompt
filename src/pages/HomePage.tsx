@@ -65,18 +65,20 @@ export default function HomePage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Dự án của bạn</h1>
-          <p className="text-slate-400">
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="gradient-text">Dự án của bạn</span>
+          </h1>
+          <p className="text-slate-400 text-lg">
             Quản lý và tạo các dự án video YouTube tự động
           </p>
         </div>
         <button
           onClick={() => setShowNewProjectModal(true)}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center gap-2 px-6 py-3 text-lg shadow-lg shadow-primary-500/50 hover:shadow-primary-500/70 hover:scale-105 transition-all"
         >
           <Plus className="w-5 h-5" />
           Dự án mới
