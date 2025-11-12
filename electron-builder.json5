@@ -29,25 +29,15 @@
         arch: ["x64"]
       }
     ],
-    // Multiple ways to disable signing
+    // Disable signing completely
     sign: null,
-    signtoolOptions: null,
-    certificateFile: null,
-    certificatePassword: null,
     verifyUpdateCodeSignature: false,
-    // This is key - don't request signing certificate
-    signDlls: false
+    signDlls: false,
+    signAndEditExecutable: false
   },
 
   linux: {
     target: ["AppImage", "deb", "rpm"],
     category: "Utility"
-  },
-
-  // Disable code signing for all platforms
-  afterSign: null,
-
-  // Prevent automatic certificate discovery
-  cscLink: null,
-  cscKeyPassword: null
+  }
 }
