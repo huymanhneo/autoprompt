@@ -3,6 +3,7 @@ import { LLMService } from './llm/LLMService'
 import { TTSService } from './tts/TTSService'
 import { AudioService } from './audio/AudioService'
 import { StorageService } from './storage/StorageService'
+import { AudioTranscriberService } from './transcriber/AudioTranscriberService'
 
 export interface AppSettings {
   llm: {
@@ -48,6 +49,7 @@ export class ServiceManager {
   private ttsService: TTSService | null = null
   private audioService: AudioService
   private storageService: StorageService
+  private transcriberService: AudioTranscriberService | null = null
 
   constructor() {
     this.store = new Store<AppSettings>({
@@ -61,6 +63,15 @@ export class ServiceManager {
     // Initialize LLM and TTS with settings
     this.initializeLLM()
     this.initializeTTS()
+    this.initializeTranscriber()
+  }
+
+  private initializeTranscriber() {
+    const settings = this.store.get('llm')
+    if (settings.apiKey) {
+      // Use same API key as LLM for Google Speech-to-Text
+      this.transcriberService = new AudioTranscriberService(settings.apiKey)
+    }
   }
 
   private initializeLLM() {
@@ -109,6 +120,13 @@ export class ServiceManager {
     return this.storageService
   }
 
+  getTranscriberService(): AudioTranscriberService {
+    if (!this.transcriberService) {
+      throw new Error('Transcriber Service not initialized. Please configure API key in settings.')
+    }
+    return this.transcriberService
+  }
+
   // ===== SETTINGS =====
 
   getSettings(): AppSettings {
@@ -125,6 +143,7 @@ export class ServiceManager {
         console.log('[ServiceManager] Saving LLM settings:', newLLM)
         this.store.set('llm', newLLM)
         this.initializeLLM()
+        this.initializeTranscriber() // Transcriber uses same API key as LLM
       }
 
       if (settings.tts) {

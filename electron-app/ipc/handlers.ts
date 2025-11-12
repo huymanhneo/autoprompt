@@ -104,6 +104,17 @@ ipcMain.handle('audio:getDuration', async (_event, filePath) => {
   }
 })
 
+ipcMain.handle('audio:transcribe', async (_event, filePath) => {
+  try {
+    const transcriber = getServiceManager().getTranscriberService()
+    const result = await transcriber.transcribeAudio(filePath)
+    return result
+  } catch (error: any) {
+    console.error('Error transcribing audio:', error)
+    throw new Error(error.message)
+  }
+})
+
 // Storage Handlers
 ipcMain.handle('storage:createProject', async (_event, params) => {
   try {

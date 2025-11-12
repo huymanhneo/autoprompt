@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   mergeAudioFiles: (params: any) => ipcRenderer.invoke('audio:merge', params),
   splitAudioToSegments: (params: any) => ipcRenderer.invoke('audio:split', params),
   getAudioDuration: (filePath: string) => ipcRenderer.invoke('audio:getDuration', filePath),
+  transcribeAudio: (filePath: string) => ipcRenderer.invoke('audio:transcribe', filePath),
 
   // Storage Service
   createProject: (params: any) => ipcRenderer.invoke('storage:createProject', params),
@@ -55,6 +56,7 @@ export interface IElectronAPI {
   mergeAudioFiles: (params: any) => Promise<any>
   splitAudioToSegments: (params: any) => Promise<any>
   getAudioDuration: (filePath: string) => Promise<number>
+  transcribeAudio: (filePath: string) => Promise<any>
   createProject: (params: any) => Promise<any>
   getProject: (projectId: string) => Promise<any>
   updateProject: (params: any) => Promise<any>
