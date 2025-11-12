@@ -1,5 +1,5 @@
 // Placeholder - will be implemented in PHASE 3
-export default function Step3ContentWriter({ project, onNext, onUpdate }: any) {
+export default function Step3ContentWriter({ onNext }: any) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="card">

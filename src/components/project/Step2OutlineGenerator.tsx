@@ -1,5 +1,5 @@
 // Placeholder - will be implemented in PHASE 3
-export default function Step2OutlineGenerator({ project, onNext, onUpdate }: any) {
+export default function Step2OutlineGenerator({ onNext }: any) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="card">

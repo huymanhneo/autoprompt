@@ -1,5 +1,5 @@
 // Placeholder - will be implemented in PHASE 5
-export default function Step8VideoPrompts({ project, onNext, onUpdate }: any) {
+export default function Step8VideoPrompts({ onNext }: any) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="card">

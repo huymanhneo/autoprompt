@@ -1,5 +1,5 @@
 // Placeholder - will be implemented in PHASE 4
-export default function Step5AudioMerger({ project, onNext, onUpdate }: any) {
+export default function Step5AudioMerger({ onNext }: any) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="card">

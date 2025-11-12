@@ -1,5 +1,5 @@
 // Placeholder - will be implemented in PHASE 5
-export default function Step7CorePrompts({ project, onNext, onUpdate }: any) {
+export default function Step7CorePrompts({ onNext }: any) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="card">
