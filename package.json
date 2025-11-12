@@ -82,7 +82,9 @@
       "category": "public.app-category.productivity"
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": ["nsis", "portable"],
+      "signingHashAlgorithms": ["sha256"],
+      "sign": null
     },
     "linux": {
       "target": ["AppImage", "deb", "rpm"],
