@@ -26,6 +26,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   listProjects: () => ipcRenderer.invoke('storage:listProjects'),
   deleteProject: (projectId: string) => ipcRenderer.invoke('storage:deleteProject', projectId),
 
+  // Chapter Storage
+  listChapters: (projectId: string) => ipcRenderer.invoke('storage:listChapters', projectId),
+  saveChapter: (params: any) => ipcRenderer.invoke('storage:saveChapter', params),
+
   // File System
   selectDirectory: () => ipcRenderer.invoke('fs:selectDirectory'),
   selectFile: (filters?: any) => ipcRenderer.invoke('fs:selectFile', filters),
@@ -62,6 +66,8 @@ export interface IElectronAPI {
   updateProject: (params: any) => Promise<any>
   listProjects: () => Promise<any>
   deleteProject: (projectId: string) => Promise<any>
+  listChapters: (projectId: string) => Promise<any>
+  saveChapter: (params: any) => Promise<any>
   selectDirectory: () => Promise<string | null>
   selectFile: (filters?: any) => Promise<string | null>
   saveFile: (params: any) => Promise<boolean>
