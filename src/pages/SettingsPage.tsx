@@ -420,12 +420,12 @@ export default function SettingsPage() {
                   })
                 }
               >
-                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Khuyên dùng)</option>
-                <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Mạnh nhất)</option>
-                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
-                <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Exp</option>
+                <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B (Khuyên dùng - Nhanh nhất)</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ổn định)</option>
+                <option value="gemini-1.5-flash-002">Gemini 1.5 Flash-002</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Mạnh nhất)</option>
+                <option value="gemini-1.5-pro-002">Gemini 1.5 Pro-002</option>
+                <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Thử nghiệm)</option>
               </select>
             </div>
 

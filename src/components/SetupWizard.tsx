@@ -12,7 +12,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     llm: {
       provider: 'gemini' as const,
       apiKey: '', // Temporary for UI
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       temperature: 0.7,
     },
     tts: {
@@ -199,12 +199,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         })
                       }
                     >
-                      <option value="gemini-2.5-flash">Gemini 2.5 Flash (Khuyên dùng - Nhanh)</option>
-                      <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (Rất nhanh)</option>
-                      <option value="gemini-2.5-pro">Gemini 2.5 Pro (Mạnh nhất)</option>
-                      <option value="gemini-2.0-flash">Gemini 2.0 Flash (Ổn định)</option>
-                      <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
-                      <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Exp</option>
+                      <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B (Khuyên dùng - Nhanh nhất)</option>
+                      <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ổn định, miễn phí)</option>
+                      <option value="gemini-1.5-flash-002">Gemini 1.5 Flash-002 (Cải tiến)</option>
+                      <option value="gemini-1.5-pro">Gemini 1.5 Pro (Mạnh nhất)</option>
+                      <option value="gemini-1.5-pro-002">Gemini 1.5 Pro-002 (Pro cải tiến)</option>
+                      <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
                     </select>
                   </div>
 
