@@ -310,13 +310,26 @@ export class TTSService {
   ): Promise<string> {
     try {
       // VietTTS requires Python script
-      // Create Python script path
-      const scriptPath = path.join(__dirname, '../../scripts/viettts_wrapper.py')
+      // Try multiple possible paths for the Python script (handles both dev and production builds)
+      const possiblePaths = [
+        path.join(process.cwd(), 'electron-app/scripts/viettts_wrapper.py'), // Dev mode
+        path.join(__dirname, '../scripts/viettts_wrapper.py'), // If bundled in same structure
+        path.join(__dirname, '../../electron-app/scripts/viettts_wrapper.py'), // From dist-electron
+      ]
 
-      // Check if Python script exists
-      try {
-        await fs.access(scriptPath)
-      } catch {
+      let scriptPath: string | null = null
+      for (const testPath of possiblePaths) {
+        try {
+          await fs.access(testPath)
+          scriptPath = testPath
+          console.log('[VietTTS] Found script at:', testPath)
+          break
+        } catch {
+          // Try next path
+        }
+      }
+
+      if (!scriptPath) {
         throw new Error('VietTTS Python script not found. Please run setup: pip install vietTTS')
       }
 
