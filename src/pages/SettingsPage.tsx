@@ -555,9 +555,14 @@ export default function SettingsPage() {
                 <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-3 text-xs text-slate-400 space-y-3">
                   <p className="font-semibold text-slate-300 mb-2">📦 Cài đặt VietTTS:</p>
 
-                  <div className="bg-slate-800/50 rounded p-2 font-mono text-xs">
-                    <p className="text-green-400"># Cài Python 3.8+ (nếu chưa có)</p>
-                    <p className="text-white">pip install vietTTS</p>
+                  <div className="bg-slate-800/50 rounded p-2 font-mono text-xs space-y-1">
+                    <p className="text-green-400"># Bước 1: Cài Git (nếu chưa có)</p>
+                    <p className="text-slate-400"># Windows: https://git-scm.com/download/win</p>
+                    <p className="text-green-400 mt-2"># Bước 2: Clone VietTTS từ GitHub</p>
+                    <p className="text-white">git clone https://github.com/NTT123/vietTTS.git</p>
+                    <p className="text-white">cd vietTTS</p>
+                    <p className="text-green-400 mt-2"># Bước 3: Cài đặt</p>
+                    <p className="text-white">pip install -e .</p>
                     <p className="text-white">pip install soundfile</p>
                   </div>
 

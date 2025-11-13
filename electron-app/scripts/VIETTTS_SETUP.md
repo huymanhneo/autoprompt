@@ -20,12 +20,23 @@ python --version
 python3 --version
 ```
 
-### 2. Install VietTTS
+### 2. Install VietTTS (from GitHub)
+
+**⚠️ Important:** VietTTS is NOT on PyPI - must install from source!
 
 ```bash
-pip install vietTTS
+# Clone repository
+git clone https://github.com/NTT123/vietTTS.git
+cd vietTTS
+
+# Install in development mode
+pip install -e .
+
+# Install additional dependencies
 pip install soundfile
 ```
+
+**Windows Users:** Install Git first from https://git-scm.com/download/win
 
 **Optional (for MP3 support):**
 ```bash
