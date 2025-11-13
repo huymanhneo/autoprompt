@@ -203,25 +203,20 @@ Yêu cầu:
 - Phong cách: ${params.style}
 - Giọng điệu: ${params.tone}
 
-Cho mỗi chương, hãy cung cấp:
-1. Tiêu đề chương (title)
-2. Bối cảnh (setting) - nơi diễn ra, thời gian
-3. Cảm xúc trung tâm (centralEmotion) - cảm xúc chính của chương
-4. Hành động chính (mainAction) - diễn biến chính
-5. Cliffhanger - điểm hấp dẫn để dẫn sang chương tiếp theo (chỉ áp dụng cho các chương không phải chương cuối)
-
 Trả về kết quả dưới dạng JSON với format sau:
 {
+  "title": "Tiêu đề của câu chuyện",
+  "summary": "Tóm tắt ngắn gọn về câu chuyện (2-3 câu)",
   "chapters": [
     {
       "chapterNumber": 1,
-      "title": "...",
-      "setting": "...",
-      "centralEmotion": "...",
-      "mainAction": "...",
-      "cliffhanger": "..."
-    },
-    ...
+      "title": "Tiêu đề chương",
+      "summary": "Tóm tắt ngắn về chương này",
+      "setting": "Bối cảnh - nơi diễn ra, thời gian",
+      "centralEmotion": "Cảm xúc chính của chương",
+      "mainAction": "Diễn biến chính",
+      "cliffhanger": "Điểm hấp dẫn để dẫn sang chương tiếp (chỉ áp dụng cho các chương không phải chương cuối)"
+    }
   ]
 }
 
