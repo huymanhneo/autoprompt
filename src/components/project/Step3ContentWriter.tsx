@@ -37,6 +37,13 @@ export default function Step3ContentWriter({
     setChapters(updatedChapters)
   }, [project.id])
 
+  // Helper function to clean content for display
+  const cleanContentForDisplay = (content: string): string => {
+    if (!content) return ''
+    // Replace literal \n with actual newlines (in case content was escaped)
+    return content.replace(/\\n/g, '\n')
+  }
+
   const handleGenerateChapter = async (chapterNumber: number) => {
     if (!project.outline) {
       alert('Vui lòng tạo dàn ý trước')
@@ -235,7 +242,7 @@ export default function Step3ContentWriter({
                     <div className="bg-slate-700/30 rounded-lg p-6">
                       <div className="prose prose-invert max-w-none">
                         <div className="text-slate-200 whitespace-pre-wrap leading-relaxed">
-                          {chapters[selectedChapter].content}
+                          {cleanContentForDisplay(chapters[selectedChapter].content)}
                         </div>
                       </div>
 

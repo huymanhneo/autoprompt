@@ -313,9 +313,13 @@ Viết nội dung:`
     // Remove any title-like lines at the start (lines ending with :)
     cleanContent = cleanContent.replace(/^[^\n]+:\s*\n/, '')
 
-    // Remove extra blank lines
+    // Fix escaped newlines (if any) - replace literal \n with actual newlines
+    cleanContent = cleanContent.replace(/\\n/g, '\n')
+
+    // Normalize line breaks - replace multiple newlines with double newline for paragraphs
     cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n')
 
+    // Trim and return
     return cleanContent.trim()
   }
 
