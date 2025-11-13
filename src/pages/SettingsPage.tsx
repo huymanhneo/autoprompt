@@ -125,7 +125,7 @@ export default function SettingsPage() {
                     llm: { ...settings.llm, model: e.target.value },
                   })
                 }
-                placeholder="VD: gemini-pro"
+                placeholder="VD: gemini-1.5-flash"
               />
             </div>
 

@@ -28,7 +28,7 @@ const defaultSettings: AppSettings = {
   llm: {
     provider: 'gemini',
     apiKey: '',
-    model: 'gemini-pro',
+    model: 'gemini-1.5-flash',
     temperature: 0.7,
   },
   tts: {

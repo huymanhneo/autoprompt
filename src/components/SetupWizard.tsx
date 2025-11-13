@@ -12,7 +12,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     llm: {
       provider: 'gemini' as const,
       apiKey: '',
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       temperature: 0.7,
     },
     tts: {
@@ -178,8 +178,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         })
                       }
                     >
-                      <option value="gemini-pro">Gemini Pro</option>
-                      <option value="gemini-pro-vision">Gemini Pro Vision</option>
+                      <option value="gemini-1.5-flash">Gemini 1.5 Flash (Khuyên dùng)</option>
+                      <option value="gemini-1.5-pro">Gemini 1.5 Pro (Mạnh hơn)</option>
+                      <option value="gemini-1.0-pro">Gemini 1.0 Pro (Legacy)</option>
                     </select>
                   </div>
 
