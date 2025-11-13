@@ -4,7 +4,7 @@ import path from 'path'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { GoogleAuth } from 'google-auth-library'
-import { GoogleGenerativeAI } from '@google/genai'
+import { GoogleGenAI } from '@google/genai'
 
 const execAsync = promisify(exec)
 
@@ -203,7 +203,7 @@ export class TTSService {
       }
 
       // Initialize Gemini AI
-      const genAI = new GoogleGenerativeAI(apiKey)
+      const genAI = new GoogleGenAI({ apiKey })
       const model = genAI.getGenerativeModel({
         model: 'gemini-2.0-flash-exp'
       })
