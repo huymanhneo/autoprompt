@@ -260,7 +260,6 @@ CHỈ trả về JSON, không thêm bất kỳ text nào khác.`
     const prompt = `Bạn là một nhà văn chuyên nghiệp. Hãy viết nội dung chi tiết cho chương sau:
 
 THÔNG TIN CHƯƠNG:
-- Số chương: ${chapter.chapterNumber}
 - Tiêu đề: ${chapter.title}
 - Bối cảnh: ${chapter.setting}
 - Cảm xúc trung tâm: ${chapter.centralEmotion}
@@ -274,17 +273,50 @@ PHONG CÁCH:
 - Giàu hình ảnh, ánh sáng, cảm xúc
 - Phù hợp để chuyển thành video với AI
 
-YÊU CẦU:
+YÊU CẦU QUAN TRỌNG:
 1. Viết nội dung khoảng 500-800 từ
-2. Tập trung vào mô tả hình ảnh, ánh sáng, không khí
+2. Tập trung vào mô tả hình ảnh, ánh sánh, không khí
 3. Sử dụng ngôn ngữ giàu cảm xúc
-4. Phù hợp để chuyển thành giọng nói và video
-5. Kết thúc có điểm nhấn nếu có cliffhanger
+4. Kết thúc có điểm nhấn nếu có cliffhanger
 
-Viết nội dung (chỉ trả về nội dung văn bản, không thêm tiêu đề hay giải thích):`
+⚠️ CHỈ TRẢ VỀ NỘI DUNG CHƯƠNG:
+- KHÔNG viết tiêu đề chương
+- KHÔNG viết "Chương 1", "Chapter 1", hoặc số thứ tự chương
+- KHÔNG viết giải thích, chú thích, metadata
+- KHÔNG sử dụng markdown (**, ##, etc)
+- CHỈ là văn bản thuần túy, sạch sẽ để đọc bằng giọng nói
+- Bắt đầu luôn vào nội dung câu chuyện
 
-    const response = await this.generateText({ prompt })
-    return response.trim()
+Viết nội dung:`
+
+    const response = await this.generateText({
+      prompt,
+      temperature: 0.8  // Higher temperature for creative writing
+    })
+
+    // Clean the response: remove any markdown, headings, or metadata
+    let cleanContent = response.trim()
+
+    // Remove markdown headings (# Heading, ## Heading, etc)
+    cleanContent = cleanContent.replace(/^#{1,6}\s+.*$/gm, '')
+
+    // Remove markdown bold/italic
+    cleanContent = cleanContent.replace(/\*\*([^*]+)\*\*/g, '$1')
+    cleanContent = cleanContent.replace(/\*([^*]+)\*/g, '$1')
+    cleanContent = cleanContent.replace(/__([^_]+)__/g, '$1')
+    cleanContent = cleanContent.replace(/_([^_]+)_/g, '$1')
+
+    // Remove "Chương X:" or "Chapter X:" at the beginning
+    cleanContent = cleanContent.replace(/^(Chương|Chapter)\s+\d+\s*:?\s*/i, '')
+    cleanContent = cleanContent.replace(/^(Phần|Part)\s+\d+\s*:?\s*/i, '')
+
+    // Remove any title-like lines at the start (lines ending with :)
+    cleanContent = cleanContent.replace(/^[^\n]+:\s*\n/, '')
+
+    // Remove extra blank lines
+    cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n')
+
+    return cleanContent.trim()
   }
 
   /**
