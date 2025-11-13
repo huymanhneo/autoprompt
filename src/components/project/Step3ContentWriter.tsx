@@ -4,13 +4,12 @@ import { Loader2, Sparkles, FileEdit, Check, Play } from 'lucide-react'
 interface Step3ContentWriterProps {
   project: any
   onNext: () => void
-  onUpdate: () => void
+  onUpdate?: () => void  // Optional since not used internally
 }
 
 export default function Step3ContentWriter({
   project,
-  onNext,
-  onUpdate
+  onNext
 }: Step3ContentWriterProps) {
   // Convert database chapters to UI format
   const initChapters = () => {
@@ -74,7 +73,7 @@ export default function Step3ContentWriter({
           content: newChapter.content
         }).then(() => {
           console.log('[Step3] Chapter saved to database')
-        }).catch(err => {
+        }).catch((err: any) => {
           console.error('[Step3] Error saving chapter:', err)
         })
 
