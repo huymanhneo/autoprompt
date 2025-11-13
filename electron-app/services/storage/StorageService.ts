@@ -186,12 +186,76 @@ export class StorageService {
 
   getProject(id: string): Project | null {
     const stmt = this.db.prepare('SELECT * FROM projects WHERE id = ?')
-    return stmt.get(id) as Project | null
+    const project = stmt.get(id) as any
+
+    if (!project) return null
+
+    // Parse JSON fields
+    if (project.outline && typeof project.outline === 'string') {
+      try {
+        project.outline = JSON.parse(project.outline)
+      } catch (error) {
+        console.error('[StorageService] Failed to parse outline JSON:', error)
+        project.outline = null
+      }
+    }
+
+    if (project.settings && typeof project.settings === 'string') {
+      try {
+        project.settings = JSON.parse(project.settings)
+      } catch (error) {
+        console.error('[StorageService] Failed to parse settings JSON:', error)
+        project.settings = null
+      }
+    }
+
+    if (project.core_prompts && typeof project.core_prompts === 'string') {
+      try {
+        project.core_prompts = JSON.parse(project.core_prompts)
+      } catch (error) {
+        console.error('[StorageService] Failed to parse core_prompts JSON:', error)
+        project.core_prompts = null
+      }
+    }
+
+    return project as Project
   }
 
   listProjects(): Project[] {
     const stmt = this.db.prepare('SELECT * FROM projects ORDER BY updated_at DESC')
-    return stmt.all() as Project[]
+    const projects = stmt.all() as any[]
+
+    // Parse JSON fields for each project
+    return projects.map((project) => {
+      if (project.outline && typeof project.outline === 'string') {
+        try {
+          project.outline = JSON.parse(project.outline)
+        } catch (error) {
+          console.error('[StorageService] Failed to parse outline JSON:', error)
+          project.outline = null
+        }
+      }
+
+      if (project.settings && typeof project.settings === 'string') {
+        try {
+          project.settings = JSON.parse(project.settings)
+        } catch (error) {
+          console.error('[StorageService] Failed to parse settings JSON:', error)
+          project.settings = null
+        }
+      }
+
+      if (project.core_prompts && typeof project.core_prompts === 'string') {
+        try {
+          project.core_prompts = JSON.parse(project.core_prompts)
+        } catch (error) {
+          console.error('[StorageService] Failed to parse core_prompts JSON:', error)
+          project.core_prompts = null
+        }
+      }
+
+      return project as Project
+    })
   }
 
   updateProject(id: string, data: Partial<Project>): void {
