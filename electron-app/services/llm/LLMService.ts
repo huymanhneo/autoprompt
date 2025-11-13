@@ -1,10 +1,9 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import { APIKeyConfig } from '../ServiceManager'
-import axios from 'axios'
 
 export interface LLMConfig {
   provider: 'gemini' | 'openai' | 'claude'
-  apiKeys: APIKeyConfig[] // CHANGED: Multiple API keys with proxy support
+  apiKeys: APIKeyConfig[]
   model: string
   temperature?: number
   maxTokens?: number
@@ -20,7 +19,7 @@ export interface LLMRequest {
 
 export class LLMService {
   private config: LLMConfig
-  private geminiClients: Map<string, GoogleGenerativeAI> = new Map() // Map of keyId -> client
+  private geminiClients: Map<string, GoogleGenAI> = new Map()
   private currentKeyIndex: number = 0
 
   constructor(config: LLMConfig) {
@@ -28,7 +27,7 @@ export class LLMService {
     if (config.provider === 'gemini' && config.apiKeys.length > 0) {
       // Initialize Gemini client for each API key
       config.apiKeys.forEach((keyConfig) => {
-        const client = new GoogleGenerativeAI(keyConfig.key)
+        const client = new GoogleGenAI({ apiKey: keyConfig.key })
         this.geminiClients.set(keyConfig.id, client)
       })
     }
@@ -47,20 +46,17 @@ export class LLMService {
 
     switch (this.config.rotationStrategy) {
       case 'round-robin':
-        // Rotate through keys in order
         selectedKey = enabledKeys[this.currentKeyIndex % enabledKeys.length]
         this.currentKeyIndex++
         break
 
       case 'random':
-        // Pick random key
         const randomIndex = Math.floor(Math.random() * enabledKeys.length)
         selectedKey = enabledKeys[randomIndex]
         break
 
       case 'fallback':
       default:
-        // Always use first key unless it fails
         selectedKey = enabledKeys[0]
         break
     }
@@ -82,7 +78,6 @@ export class LLMService {
 
     let lastError: Error | null = null
 
-    // Try up to maxRetries times or until we run out of keys
     for (let i = 0; i < Math.min(maxRetries, enabledKeys.length); i++) {
       try {
         const keyConfig = this.getNextAPIKey()
@@ -101,13 +96,11 @@ export class LLMService {
         lastError = error
         console.error(`[LLMService] API call failed (attempt ${i + 1}):`, error.message)
 
-        // If it's a rate limit error, try next key
         if (error.message?.includes('429') || error.message?.includes('quota')) {
           console.log('[LLMService] Rate limit detected, trying next key...')
           continue
         }
 
-        // For other errors, throw immediately
         throw error
       }
     }
@@ -139,21 +132,21 @@ export class LLMService {
         throw new Error(`Gemini client not found for key: ${keyConfig.name}`)
       }
 
-      const model = client.getGenerativeModel({
+      const fullPrompt = request.systemPrompt
+        ? `${request.systemPrompt}\n\n${request.prompt}`
+        : request.prompt
+
+      // NEW SDK API
+      const response = await client.models.generateContent({
         model: this.config.model,
-        generationConfig: {
+        contents: fullPrompt,
+        config: {
           temperature: request.temperature ?? this.config.temperature ?? 0.7,
           maxOutputTokens: request.maxTokens ?? this.config.maxTokens ?? 4096,
         },
       })
 
-      const fullPrompt = request.systemPrompt
-        ? `${request.systemPrompt}\n\n${request.prompt}`
-        : request.prompt
-
-      const result = await model.generateContent(fullPrompt)
-      const response = result.response
-      return response.text()
+      return response.text
     })
   }
 
@@ -324,7 +317,6 @@ CHỈ trả về JSON, không thêm text khác.`
     const maxPerBatch = params.maxPromptsPerBatch || 4
     const results: any[] = []
 
-    // Process in batches of 4
     for (let i = 0; i < params.sceneTranscripts.length; i += maxPerBatch) {
       const batch = params.sceneTranscripts.slice(i, i + maxPerBatch)
 

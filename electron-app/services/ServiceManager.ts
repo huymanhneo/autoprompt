@@ -40,7 +40,7 @@ const defaultSettings: AppSettings = {
   llm: {
     provider: 'gemini',
     apiKeys: [], // Start with empty array, user will add keys
-    model: 'gemini-1.5-flash-8b',
+    model: 'gemini-2.5-flash',
     temperature: 0.7,
     rotationStrategy: 'round-robin',
   },
