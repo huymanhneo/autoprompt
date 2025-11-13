@@ -30,12 +30,13 @@ export default function Step3ContentWriter({
   const [selectedChapter, setSelectedChapter] = useState<number>(0)
   const [saving, setSaving] = useState(false)
 
-  // Sync chapters state when project.chapters changes (after reload)
+  // Sync chapters state ONLY on project ID change (not on every project.chapters change)
+  // This prevents local state from being overwritten during generation
   useEffect(() => {
-    console.log('[Step3] Project chapters updated:', project.chapters)
+    console.log('[Step3] Project ID changed, reloading chapters from DB')
     const updatedChapters = initChapters()
     setChapters(updatedChapters)
-  }, [project.chapters])
+  }, [project.id])
 
   const handleGenerateChapter = async (chapterNumber: number) => {
     if (!project.outline) {
@@ -60,18 +61,22 @@ export default function Step3ContentWriter({
           content: result.data
         }
 
-        // Save to database immediately
-        await window.electronAPI.saveChapter({
+        // Update UI state FIRST
+        const updatedChapters = [...chapters]
+        updatedChapters[chapterNumber] = newChapter
+        setChapters(updatedChapters)
+
+        // Save to database (background, don't await to prevent blocking UI)
+        window.electronAPI.saveChapter({
           projectId: project.id,
           chapterNumber: chapterNumber + 1,
           title: newChapter.title,
           content: newChapter.content
+        }).then(() => {
+          console.log('[Step3] Chapter saved to database')
+        }).catch(err => {
+          console.error('[Step3] Error saving chapter:', err)
         })
-
-        // Update UI state
-        const updatedChapters = [...chapters]
-        updatedChapters[chapterNumber] = newChapter
-        setChapters(updatedChapters)
 
         // Check if all chapters are generated
         const allGenerated = project.outline.chapters.every(
@@ -86,9 +91,7 @@ export default function Step3ContentWriter({
           })
         }
 
-        // Reload project data
-        await onUpdate()
-        console.log('[Step3] Chapter generated and saved')
+        console.log('[Step3] Chapter generated, UI updated')
       }
     } catch (error: any) {
       console.error('[Step3] Error generating chapter:', error)
@@ -135,7 +138,7 @@ export default function Step3ContentWriter({
         })
       }
 
-      await onUpdate()
+      console.log('[Step3] All chapters saved to database')
       alert('Đã lưu tất cả nội dung!')
     } catch (error: any) {
       console.error('[Step3] Error saving:', error)
