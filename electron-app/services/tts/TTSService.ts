@@ -76,9 +76,17 @@ export class TTSService {
     outputPath: string
   ): Promise<string> {
     try {
-      // Google Cloud Text-to-Speech API
+      const apiKey = this.config.apiKey || process.env.GOOGLE_API_KEY || ''
+
+      if (!apiKey) {
+        throw new Error('Google API key is required for Text-to-Speech. Please add your API key in Settings.')
+      }
+
+      // Google Cloud Text-to-Speech API - API key goes in URL query parameter
+      const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`
+
       const response = await axios.post(
-        'https://texttospeech.googleapis.com/v1/text:synthesize',
+        url,
         {
           input: { text },
           voice: {
@@ -93,7 +101,6 @@ export class TTSService {
         {
           headers: {
             'Content-Type': 'application/json',
-            'X-Goog-Api-Key': this.config.apiKey || process.env.GOOGLE_API_KEY || '',
           },
         }
       )
@@ -104,8 +111,14 @@ export class TTSService {
 
       return outputPath
     } catch (error: any) {
+      const errorMsg = error.response?.data?.error?.message || error.message
       console.error('Google TTS Error:', error.response?.data || error.message)
-      throw new Error(`Google TTS failed: ${error.message}`)
+
+      if (error.response?.status === 403) {
+        throw new Error('Google TTS API key invalid or Cloud Text-to-Speech API not enabled. Please:\n1. Enable Cloud Text-to-Speech API in Google Cloud Console\n2. Check your API key has Text-to-Speech permissions')
+      }
+
+      throw new Error(`Google TTS failed: ${errorMsg}`)
     }
   }
 
