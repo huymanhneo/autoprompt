@@ -143,11 +143,44 @@ export class LLMService {
         config: {
           temperature: request.temperature ?? this.config.temperature ?? 0.7,
           maxOutputTokens: request.maxTokens ?? this.config.maxTokens ?? 4096,
+          responseMimeType: 'text/plain', // Ensure plain text response
         },
       })
 
-      return response.text
+      return response.text || ''
     })
+  }
+
+  /**
+   * Helper method to extract and clean JSON from response
+   * Handles markdown code blocks, trailing commas, and comments
+   */
+  private extractJSON(text: string): string {
+    let jsonText = text.trim()
+
+    // Remove markdown code blocks if present
+    const codeBlockMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/)
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1].trim()
+    }
+
+    // Try to find JSON object or array
+    const jsonMatch = jsonText.match(/(\{[\s\S]*\}|\[[\s\S]*\])/)
+    if (jsonMatch) {
+      jsonText = jsonMatch[1].trim()
+    }
+
+    // Clean up common JSON issues
+    // Remove trailing commas before closing braces/brackets
+    jsonText = jsonText.replace(/,(\s*[}\]])/g, '$1')
+
+    // Remove single-line comments
+    jsonText = jsonText.replace(/\/\/.*$/gm, '')
+
+    // Remove multi-line comments
+    jsonText = jsonText.replace(/\/\*[\s\S]*?\*\//g, '')
+
+    return jsonText.trim()
   }
 
   // ===== SPECIALIZED METHODS =====
@@ -196,13 +229,15 @@ CHỈ trả về JSON, không thêm bất kỳ text nào khác.`
 
     const response = await this.generateText({ prompt })
 
-    // Extract JSON from response
-    const jsonMatch = response.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error('Invalid response format from LLM')
-    }
+    // Extract JSON from response (handles markdown code blocks)
+    const jsonText = this.extractJSON(response)
 
-    return JSON.parse(jsonMatch[0])
+    try {
+      return JSON.parse(jsonText)
+    } catch (error: any) {
+      console.error('[LLMService] Failed to parse JSON:', jsonText)
+      throw new Error(`Invalid JSON response from LLM: ${error.message}`)
+    }
   }
 
   /**
@@ -297,12 +332,15 @@ Trả về JSON với format:
 CHỈ trả về JSON, không thêm text khác.`
 
     const response = await this.generateText({ prompt })
-    const jsonMatch = response.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error('Invalid response format from LLM')
-    }
 
-    return JSON.parse(jsonMatch[0])
+    const jsonText = this.extractJSON(response)
+
+    try {
+      return JSON.parse(jsonText)
+    } catch (error: any) {
+      console.error('[LLMService] Failed to parse core prompts JSON:', jsonText)
+      throw new Error(`Invalid JSON response from LLM: ${error.message}`)
+    }
   }
 
   /**
@@ -370,13 +408,16 @@ Trả về JSON array với format:
 CHỈ trả về JSON array, không thêm text khác.`
 
       const response = await this.generateText({ prompt })
-      const jsonMatch = response.match(/\[[\s\S]*\]/)
-      if (!jsonMatch) {
-        throw new Error('Invalid response format from LLM')
-      }
 
-      const batchResults = JSON.parse(jsonMatch[0])
-      results.push(...batchResults)
+      const jsonText = this.extractJSON(response)
+
+      try {
+        const batchResults = JSON.parse(jsonText)
+        results.push(...batchResults)
+      } catch (error: any) {
+        console.error('[LLMService] Failed to parse video prompts JSON:', jsonText)
+        throw new Error(`Invalid JSON response from LLM: ${error.message}`)
+      }
     }
 
     return results
