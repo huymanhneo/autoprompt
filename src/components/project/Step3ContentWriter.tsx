@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Loader2, Sparkles, FileEdit, Check, Play } from 'lucide-react'
 
 interface Step3ContentWriterProps {
@@ -29,6 +29,13 @@ export default function Step3ContentWriter({
   const [generatingChapter, setGeneratingChapter] = useState<number | null>(null)
   const [selectedChapter, setSelectedChapter] = useState<number>(0)
   const [saving, setSaving] = useState(false)
+
+  // Sync chapters state when project.chapters changes (after reload)
+  useEffect(() => {
+    console.log('[Step3] Project chapters updated:', project.chapters)
+    const updatedChapters = initChapters()
+    setChapters(updatedChapters)
+  }, [project.chapters])
 
   const handleGenerateChapter = async (chapterNumber: number) => {
     if (!project.outline) {
