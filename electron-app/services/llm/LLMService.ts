@@ -297,6 +297,18 @@ Viết nội dung:`
     // Clean the response: remove any markdown, headings, or metadata
     let cleanContent = response.trim()
 
+    // Remove JSON-like wrapper if present (e.g., {"content": "..."} or ["..."])
+    cleanContent = cleanContent.replace(/^\s*\{[^:]+:\s*["'](.*)["']\s*\}\s*$/s, '$1')
+    cleanContent = cleanContent.replace(/^\s*\[\s*["'](.*)["']\s*\]\s*$/s, '$1')
+
+    // Remove leading/trailing square brackets, curly braces, quotes
+    cleanContent = cleanContent.replace(/^\s*[\[{}"']+\s*/g, '')
+    cleanContent = cleanContent.replace(/\s*[\]}"']+\s*$/g, '')
+
+    // Remove markdown code blocks (```...```)
+    cleanContent = cleanContent.replace(/```[\w]*\n([\s\S]*?)\n```/g, '$1')
+    cleanContent = cleanContent.replace(/```([\s\S]*?)```/g, '$1')
+
     // Remove markdown headings (# Heading, ## Heading, etc)
     cleanContent = cleanContent.replace(/^#{1,6}\s+.*$/gm, '')
 
@@ -313,13 +325,25 @@ Viết nội dung:`
     // Remove any title-like lines at the start (lines ending with :)
     cleanContent = cleanContent.replace(/^[^\n]+:\s*\n/, '')
 
+    // Remove leading numbering (1. 2. etc)
+    cleanContent = cleanContent.replace(/^\d+\.\s+/, '')
+
+    // Remove leading dots or dashes
+    cleanContent = cleanContent.replace(/^[.\-,;:]+\s+/, '')
+
     // Fix escaped newlines (if any) - replace literal \n with actual newlines
     cleanContent = cleanContent.replace(/\\n/g, '\n')
 
     // Normalize line breaks - replace multiple newlines with double newline for paragraphs
     cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n')
 
-    // Trim and return
+    // Final trim to remove any remaining leading/trailing whitespace
+    cleanContent = cleanContent.trim()
+
+    // One more pass to remove any remaining brackets/braces at start/end
+    cleanContent = cleanContent.replace(/^\s*[\[{]+\s*/g, '')
+    cleanContent = cleanContent.replace(/\s*[\]}]+\s*$/g, '')
+
     return cleanContent.trim()
   }
 

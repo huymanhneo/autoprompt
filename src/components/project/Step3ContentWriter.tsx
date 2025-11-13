@@ -46,8 +46,30 @@ export default function Step3ContentWriter({
   // Helper function to clean content for display
   const cleanContentForDisplay = (content: string): string => {
     if (!content) return ''
-    // Replace literal \n with actual newlines (in case content was escaped)
-    return content.replace(/\\n/g, '\n')
+
+    let cleaned = content
+
+    // Remove JSON-like wrappers
+    cleaned = cleaned.replace(/^\s*\{[^:]+:\s*["'](.*)["']\s*\}\s*$/s, '$1')
+    cleaned = cleaned.replace(/^\s*\[\s*["'](.*)["']\s*\]\s*$/s, '$1')
+
+    // Remove leading/trailing brackets, braces, quotes
+    cleaned = cleaned.replace(/^\s*[\[{}"']+\s*/g, '')
+    cleaned = cleaned.replace(/\s*[\]}"']+\s*$/g, '')
+
+    // Replace literal \n with actual newlines
+    cleaned = cleaned.replace(/\\n/g, '\n')
+
+    // Remove leading numbering or punctuation
+    cleaned = cleaned.replace(/^\d+\.\s+/, '')
+    cleaned = cleaned.replace(/^[.\-,;:]+\s+/, '')
+
+    // Final cleanup
+    cleaned = cleaned.trim()
+    cleaned = cleaned.replace(/^\s*[\[{]+\s*/g, '')
+    cleaned = cleaned.replace(/\s*[\]}]+\s*$/g, '')
+
+    return cleaned
   }
 
   const handleGenerateChapter = async (chapterNumber: number) => {
