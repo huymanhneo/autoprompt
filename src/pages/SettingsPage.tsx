@@ -20,7 +20,7 @@ interface Settings {
     rotationStrategy: 'round-robin' | 'random' | 'fallback'
   }
   tts: {
-    provider: 'google' | 'elevenlabs' | 'fpt' | 'viettel'
+    provider: 'google' | 'gemini' | 'elevenlabs' | 'fpt' | 'viettel'
     apiKey: string
     googleCredentialsPath?: string
     voice: string
@@ -535,14 +535,45 @@ export default function SettingsPage() {
                   })
                 }
               >
-                <option value="google">Google Cloud Text-to-Speech</option>
+                <option value="gemini">Gemini TTS (Khuyên dùng - Đơn giản, chỉ cần API key)</option>
+                <option value="google">Google Cloud Text-to-Speech (Phức tạp - Cần Service Account)</option>
                 <option value="elevenlabs">ElevenLabs (Trả phí)</option>
                 <option value="fpt">FPT AI (Miễn phí)</option>
                 <option value="viettel">Viettel AI (Miễn phí)</option>
               </select>
             </div>
 
-            {settings.tts.provider === 'google' ? (
+            {settings.tts.provider === 'gemini' ? (
+              <div>
+                <label className="label flex items-center gap-2">
+                  <Key className="w-4 h-4" />
+                  Gemini API Key
+                  <span className="text-xs text-green-400">(Đơn giản - Chỉ cần API key)</span>
+                </label>
+                <input
+                  type="password"
+                  className="input font-mono"
+                  value={settings.tts.apiKey}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      tts: { ...settings.tts, apiKey: e.target.value },
+                    })
+                  }
+                  placeholder="Nhập Gemini API key"
+                />
+                <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-3 mt-3 text-xs text-slate-400">
+                  <p className="font-semibold text-slate-300 mb-2">💡 Hướng dẫn lấy Gemini API Key:</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-2">
+                    <li>Vào <a href="https://aistudio.google.com/apikey" target="_blank" className="text-primary-400 hover:underline">Google AI Studio</a></li>
+                    <li>Click "Create API Key" → Chọn project</li>
+                    <li>Copy API key và paste vào ô trên</li>
+                    <li>Click "Lưu cài đặt" → Xong!</li>
+                  </ol>
+                  <p className="text-green-400 mt-2">✅ Có thể dùng cùng API key với LLM (nếu đã có)</p>
+                </div>
+              </div>
+            ) : settings.tts.provider === 'google' ? (
               <div>
                 <label className="label flex items-center gap-2">
                   <Key className="w-4 h-4" />
@@ -622,8 +653,19 @@ export default function SettingsPage() {
                     tts: { ...settings.tts, voice: e.target.value },
                   })
                 }
-                placeholder="VD: vi-VN-Standard-A"
+                placeholder={
+                  settings.tts.provider === 'gemini'
+                    ? 'VD: Puck, Charon, Kore, Fenrir, Aoede'
+                    : settings.tts.provider === 'google'
+                    ? 'VD: vi-VN-Standard-A'
+                    : 'VD: leminh, banmai'
+                }
               />
+              {settings.tts.provider === 'gemini' && (
+                <p className="text-xs text-slate-400 mt-1">
+                  💡 Giọng Gemini: Puck, Charon (Nam) | Kore, Aoede (Nữ) | Fenrir (Mạnh mẽ)
+                </p>
+              )}
             </div>
           </div>
         </div>

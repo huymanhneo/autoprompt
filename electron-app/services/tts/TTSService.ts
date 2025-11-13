@@ -4,13 +4,14 @@ import path from 'path'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { GoogleAuth } from 'google-auth-library'
+import { GoogleGenerativeAI } from '@google/genai'
 
 const execAsync = promisify(exec)
 
 export interface TTSConfig {
-  provider: 'google' | 'elevenlabs' | 'fpt' | 'viettel'
+  provider: 'google' | 'gemini' | 'elevenlabs' | 'fpt' | 'viettel'
   apiKey?: string
-  googleCredentialsPath?: string // Path to Google Service Account JSON file
+  googleCredentialsPath?: string // Path to Google Service Account JSON file (for Google Cloud TTS)
   voice: string
   speed?: number
 }
@@ -44,6 +45,8 @@ export class TTSService {
     switch (this.config.provider) {
       case 'google':
         return this.generateWithGoogle(request.text, voice, speed, request.outputPath)
+      case 'gemini':
+        return this.generateWithGemini(request.text, voice, speed, request.outputPath)
       case 'elevenlabs':
         return this.generateWithElevenLabs(request.text, voice, speed, request.outputPath)
       case 'fpt':
@@ -59,6 +62,8 @@ export class TTSService {
     switch (this.config.provider) {
       case 'google':
         return this.getGoogleVoices()
+      case 'gemini':
+        return this.getGeminiVoices()
       case 'elevenlabs':
         return this.getElevenLabsVoices()
       case 'fpt':
@@ -179,6 +184,110 @@ export class TTSService {
         name: 'Vi-VN Wavenet B (Nam, Chất lượng cao)',
         language: 'vi-VN',
         gender: 'male',
+      },
+    ]
+  }
+
+  // ===== GEMINI TTS =====
+  private async generateWithGemini(
+    text: string,
+    voice: string,
+    speed: number,
+    outputPath: string
+  ): Promise<string> {
+    try {
+      const apiKey = this.config.apiKey || process.env.GEMINI_API_KEY || ''
+
+      if (!apiKey) {
+        throw new Error('Gemini API key is required for Text-to-Speech. Please add your API key in Settings.')
+      }
+
+      // Initialize Gemini AI
+      const genAI = new GoogleGenerativeAI(apiKey)
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.0-flash-exp'
+      })
+
+      // Generate audio using Gemini's TTS capability
+      const result = await model.generateContent({
+        contents: [{
+          role: 'user',
+          parts: [{
+            text: text
+          }]
+        }],
+        generationConfig: {
+          responseMimeType: 'audio/mp3',
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: voice
+              }
+            }
+          }
+        }
+      })
+
+      // Get audio data from response
+      const response = await result.response
+
+      // Check if response has audio data
+      if (!response || !response.candidates || response.candidates.length === 0) {
+        throw new Error('No audio generated from Gemini')
+      }
+
+      const audioData = response.candidates[0].content.parts[0].inlineData
+      if (!audioData || !audioData.data) {
+        throw new Error('No audio data in Gemini response')
+      }
+
+      // Decode base64 audio and save
+      const audioBuffer = Buffer.from(audioData.data, 'base64')
+      await fs.writeFile(outputPath, audioBuffer)
+
+      return outputPath
+    } catch (error: any) {
+      console.error('Gemini TTS Error:', error)
+
+      if (error.message?.includes('API key')) {
+        throw new Error('Gemini API key invalid. Please check your API key in Settings.')
+      }
+
+      throw new Error(`Gemini TTS failed: ${error.message}`)
+    }
+  }
+
+  private getGeminiVoices(): TTSVoice[] {
+    return [
+      {
+        id: 'Puck',
+        name: 'Puck (Nam, Trẻ trung)',
+        language: 'en-US',
+        gender: 'male',
+      },
+      {
+        id: 'Charon',
+        name: 'Charon (Nam, Trầm ấm)',
+        language: 'en-US',
+        gender: 'male',
+      },
+      {
+        id: 'Kore',
+        name: 'Kore (Nữ, Trẻ trung)',
+        language: 'en-US',
+        gender: 'female',
+      },
+      {
+        id: 'Fenrir',
+        name: 'Fenrir (Nam, Mạnh mẽ)',
+        language: 'en-US',
+        gender: 'male',
+      },
+      {
+        id: 'Aoede',
+        name: 'Aoede (Nữ, Dịu dàng)',
+        language: 'en-US',
+        gender: 'female',
       },
     ]
   }
