@@ -143,7 +143,7 @@ export class LLMService {
         config: {
           temperature: request.temperature ?? this.config.temperature ?? 0.7,
           maxOutputTokens: request.maxTokens ?? this.config.maxTokens ?? 4096,
-          responseMimeType: 'text/plain', // Ensure plain text response
+          responseMimeType: 'application/json', // Request JSON format
         },
       })
 
@@ -170,15 +170,20 @@ export class LLMService {
       jsonText = jsonMatch[1].trim()
     }
 
-    // Clean up common JSON issues
-    // Remove trailing commas before closing braces/brackets
-    jsonText = jsonText.replace(/,(\s*[}\]])/g, '$1')
-
     // Remove single-line comments
     jsonText = jsonText.replace(/\/\/.*$/gm, '')
 
     // Remove multi-line comments
     jsonText = jsonText.replace(/\/\*[\s\S]*?\*\//g, '')
+
+    // Clean up trailing commas (run multiple times to catch nested cases)
+    for (let i = 0; i < 5; i++) {
+      const before = jsonText
+      // Remove trailing commas before closing braces/brackets (with any whitespace)
+      jsonText = jsonText.replace(/,(\s*[}\]])/g, '$1')
+      // If no changes were made, we're done
+      if (jsonText === before) break
+    }
 
     return jsonText.trim()
   }
