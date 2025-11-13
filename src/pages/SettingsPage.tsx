@@ -73,18 +73,24 @@ export default function SettingsPage() {
     try {
       const result = await window.electronAPI.selectGoogleCredentials()
       if (result.success && result.path) {
-        setSettings({
+        const updatedSettings = {
           ...settings!,
           tts: {
             ...settings!.tts,
             googleCredentialsPath: result.path,
           },
-        })
-        alert('Đã tải lên credentials file thành công!')
+        }
+
+        setSettings(updatedSettings)
+
+        // Auto-save settings after uploading credentials
+        await window.electronAPI.updateSettings(updatedSettings)
+
+        alert('✅ Đã tải lên và lưu credentials file thành công!')
       }
     } catch (error) {
       console.error('Error selecting credentials:', error)
-      alert('Lỗi khi chọn credentials file')
+      alert('❌ Lỗi khi chọn credentials file: ' + error)
     }
   }
 
@@ -569,16 +575,17 @@ export default function SettingsPage() {
                   </button>
 
                   <div className="bg-slate-700/30 rounded-lg p-3 text-xs text-slate-400 space-y-2">
-                    <p className="font-semibold text-slate-300">📖 Hướng dẫn tạo Service Account:</p>
+                    <p className="font-semibold text-slate-300">📖 Hướng dẫn chi tiết:</p>
                     <ol className="list-decimal list-inside space-y-1 ml-2">
-                      <li>Vào <a href="https://console.cloud.google.com/" target="_blank" className="text-primary-400 hover:underline">Google Cloud Console</a></li>
-                      <li>Chọn project → IAM & Admin → Service Accounts</li>
-                      <li>Create Service Account → đặt tên và Create</li>
-                      <li>Grant role: "Cloud Text-to-Speech User"</li>
-                      <li>Tạo Key (JSON format) và download file JSON</li>
-                      <li>Enable "Cloud Text-to-Speech API" trong APIs & Services</li>
-                      <li>Upload file JSON vừa download bằng nút bên trên</li>
+                      <li><strong>Enable API:</strong> Vào <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" className="text-primary-400 hover:underline">Cloud Text-to-Speech API</a> → Enable</li>
+                      <li><strong>Tạo Service Account:</strong> <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" className="text-primary-400 hover:underline">IAM & Admin → Service Accounts</a></li>
+                      <li>Click "Create Service Account" → Đặt tên (VD: tts-service) → Create and Continue</li>
+                      <li><strong>Grant role:</strong> Chọn "Editor" hoặc "Owner" (nếu không thấy role TTS cụ thể) → Continue → Done</li>
+                      <li><strong>Tạo Key:</strong> Click vào Service Account vừa tạo → Tab "Keys" → Add Key → Create new key</li>
+                      <li>Chọn <strong>JSON</strong> → Create → File JSON sẽ tự động download</li>
+                      <li><strong>Upload:</strong> Click nút "Upload Credentials File" bên trên và chọn file JSON vừa download</li>
                     </ol>
+                    <p className="text-amber-400 mt-2">💡 Tip: Nếu không tìm thấy role "Cloud Text-to-Speech", chọn role "Editor" - nó có đủ quyền cho TTS.</p>
                   </div>
                 </div>
               </div>
