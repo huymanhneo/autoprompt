@@ -1,11 +1,14 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { APIKeyConfig } from '../ServiceManager'
+import axios from 'axios'
 
 export interface LLMConfig {
   provider: 'gemini' | 'openai' | 'claude'
-  apiKey: string
+  apiKeys: APIKeyConfig[] // CHANGED: Multiple API keys with proxy support
   model: string
   temperature?: number
   maxTokens?: number
+  rotationStrategy: 'round-robin' | 'random' | 'fallback'
 }
 
 export interface LLMRequest {
@@ -17,13 +20,99 @@ export interface LLMRequest {
 
 export class LLMService {
   private config: LLMConfig
-  private gemini: GoogleGenerativeAI | null = null
+  private geminiClients: Map<string, GoogleGenerativeAI> = new Map() // Map of keyId -> client
+  private currentKeyIndex: number = 0
 
   constructor(config: LLMConfig) {
     this.config = config
-    if (config.provider === 'gemini' && config.apiKey) {
-      this.gemini = new GoogleGenerativeAI(config.apiKey)
+    if (config.provider === 'gemini' && config.apiKeys.length > 0) {
+      // Initialize Gemini client for each API key
+      config.apiKeys.forEach((keyConfig) => {
+        const client = new GoogleGenerativeAI(keyConfig.key)
+        this.geminiClients.set(keyConfig.id, client)
+      })
     }
+  }
+
+  /**
+   * Get next API key based on rotation strategy
+   */
+  private getNextAPIKey(): APIKeyConfig {
+    const enabledKeys = this.config.apiKeys.filter((k) => k.enabled)
+    if (enabledKeys.length === 0) {
+      throw new Error('No enabled API keys available')
+    }
+
+    let selectedKey: APIKeyConfig
+
+    switch (this.config.rotationStrategy) {
+      case 'round-robin':
+        // Rotate through keys in order
+        selectedKey = enabledKeys[this.currentKeyIndex % enabledKeys.length]
+        this.currentKeyIndex++
+        break
+
+      case 'random':
+        // Pick random key
+        const randomIndex = Math.floor(Math.random() * enabledKeys.length)
+        selectedKey = enabledKeys[randomIndex]
+        break
+
+      case 'fallback':
+      default:
+        // Always use first key unless it fails
+        selectedKey = enabledKeys[0]
+        break
+    }
+
+    return selectedKey
+  }
+
+  /**
+   * Try API call with fallback to other keys if failed
+   */
+  private async tryAPICall<T>(
+    fn: (keyConfig: APIKeyConfig) => Promise<T>,
+    maxRetries: number = 3
+  ): Promise<T> {
+    const enabledKeys = this.config.apiKeys.filter((k) => k.enabled)
+    if (enabledKeys.length === 0) {
+      throw new Error('No enabled API keys available')
+    }
+
+    let lastError: Error | null = null
+
+    // Try up to maxRetries times or until we run out of keys
+    for (let i = 0; i < Math.min(maxRetries, enabledKeys.length); i++) {
+      try {
+        const keyConfig = this.getNextAPIKey()
+        console.log(
+          `[LLMService] Using API key: ${keyConfig.name} (attempt ${i + 1}/${maxRetries})`
+        )
+
+        const result = await fn(keyConfig)
+
+        // Success - update stats
+        keyConfig.lastUsed = new Date().toISOString()
+        keyConfig.requestCount = (keyConfig.requestCount || 0) + 1
+
+        return result
+      } catch (error: any) {
+        lastError = error
+        console.error(`[LLMService] API call failed (attempt ${i + 1}):`, error.message)
+
+        // If it's a rate limit error, try next key
+        if (error.message?.includes('429') || error.message?.includes('quota')) {
+          console.log('[LLMService] Rate limit detected, trying next key...')
+          continue
+        }
+
+        // For other errors, throw immediately
+        throw error
+      }
+    }
+
+    throw lastError || new Error('All API keys failed')
   }
 
   async generateText(request: LLMRequest): Promise<string> {
@@ -40,25 +129,32 @@ export class LLMService {
   }
 
   private async generateWithGemini(request: LLMRequest): Promise<string> {
-    if (!this.gemini) {
-      throw new Error('Gemini not initialized. Please provide API key in settings.')
+    if (this.geminiClients.size === 0) {
+      throw new Error('Gemini not initialized. Please add API keys in settings.')
     }
 
-    const model = this.gemini.getGenerativeModel({
-      model: this.config.model,
-      generationConfig: {
-        temperature: request.temperature ?? this.config.temperature ?? 0.7,
-        maxOutputTokens: request.maxTokens ?? this.config.maxTokens ?? 4096,
-      },
+    return this.tryAPICall(async (keyConfig) => {
+      const client = this.geminiClients.get(keyConfig.id)
+      if (!client) {
+        throw new Error(`Gemini client not found for key: ${keyConfig.name}`)
+      }
+
+      const model = client.getGenerativeModel({
+        model: this.config.model,
+        generationConfig: {
+          temperature: request.temperature ?? this.config.temperature ?? 0.7,
+          maxOutputTokens: request.maxTokens ?? this.config.maxTokens ?? 4096,
+        },
+      })
+
+      const fullPrompt = request.systemPrompt
+        ? `${request.systemPrompt}\n\n${request.prompt}`
+        : request.prompt
+
+      const result = await model.generateContent(fullPrompt)
+      const response = result.response
+      return response.text()
     })
-
-    const fullPrompt = request.systemPrompt
-      ? `${request.systemPrompt}\n\n${request.prompt}`
-      : request.prompt
-
-    const result = await model.generateContent(fullPrompt)
-    const response = result.response
-    return response.text()
   }
 
   // ===== SPECIALIZED METHODS =====

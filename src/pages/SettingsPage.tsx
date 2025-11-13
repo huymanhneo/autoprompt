@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react'
-import { Save, Key, Mic, Brain, Music } from 'lucide-react'
+import { Save, Key, Mic, Brain, Music, Plus, Trash2, Edit2, ToggleLeft, ToggleRight, Globe } from 'lucide-react'
+
+interface APIKeyConfig {
+  id: string
+  name: string
+  key: string
+  proxy?: string
+  enabled: boolean
+  lastUsed?: string
+  requestCount?: number
+}
 
 interface Settings {
   llm: {
     provider: 'gemini' | 'openai' | 'claude'
-    apiKey: string
+    apiKeys: APIKeyConfig[]
     model: string
     temperature: number
+    rotationStrategy: 'round-robin' | 'random' | 'fallback'
   }
   tts: {
     provider: 'google' | 'elevenlabs' | 'fpt' | 'viettel'
@@ -22,6 +33,14 @@ interface Settings {
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [saving, setSaving] = useState(false)
+  const [editingKey, setEditingKey] = useState<string | null>(null)
+  const [showAddKey, setShowAddKey] = useState(false)
+  const [newKey, setNewKey] = useState<Partial<APIKeyConfig>>({
+    name: '',
+    key: '',
+    proxy: '',
+    enabled: true,
+  })
 
   useEffect(() => {
     loadSettings()
@@ -49,12 +68,76 @@ export default function SettingsPage() {
     }
   }
 
+  const handleAddKey = () => {
+    if (!newKey.name || !newKey.key) {
+      alert('Vui lòng nhập tên và API key')
+      return
+    }
+
+    const apiKeyConfig: APIKeyConfig = {
+      id: crypto.randomUUID(),
+      name: newKey.name,
+      key: newKey.key,
+      proxy: newKey.proxy || undefined,
+      enabled: newKey.enabled !== false,
+      requestCount: 0,
+    }
+
+    setSettings({
+      ...settings!,
+      llm: {
+        ...settings!.llm,
+        apiKeys: [...settings!.llm.apiKeys, apiKeyConfig],
+      },
+    })
+
+    setNewKey({ name: '', key: '', proxy: '', enabled: true })
+    setShowAddKey(false)
+  }
+
+  const handleDeleteKey = (keyId: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa API key này?')) return
+
+    setSettings({
+      ...settings!,
+      llm: {
+        ...settings!.llm,
+        apiKeys: settings!.llm.apiKeys.filter((k) => k.id !== keyId),
+      },
+    })
+  }
+
+  const handleToggleKey = (keyId: string) => {
+    setSettings({
+      ...settings!,
+      llm: {
+        ...settings!.llm,
+        apiKeys: settings!.llm.apiKeys.map((k) =>
+          k.id === keyId ? { ...k, enabled: !k.enabled } : k
+        ),
+      },
+    })
+  }
+
+  const handleUpdateKey = (keyId: string, updates: Partial<APIKeyConfig>) => {
+    setSettings({
+      ...settings!,
+      llm: {
+        ...settings!.llm,
+        apiKeys: settings!.llm.apiKeys.map((k) =>
+          k.id === keyId ? { ...k, ...updates } : k
+        ),
+      },
+    })
+    setEditingKey(null)
+  }
+
   if (!settings) {
     return <div className="p-8">Loading...</div>
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-8 max-w-6xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Cài đặt</h1>
         <p className="text-slate-400">
@@ -63,16 +146,247 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6">
-        {/* LLM Settings */}
+        {/* LLM Settings - API Keys Management */}
         <div className="card">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-6">
             <Brain className="w-6 h-6 text-primary-500" />
             <h2 className="text-xl font-semibold text-white">
-              Cài đặt AI tạo nội dung (LLM)
+              Quản lý API Keys (LLM)
             </h2>
           </div>
 
-          <div className="space-y-4">
+          {/* API Keys List */}
+          <div className="space-y-4 mb-6">
+            {settings.llm.apiKeys.length === 0 ? (
+              <div className="bg-slate-700/30 rounded-lg p-6 text-center">
+                <Key className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                <p className="text-slate-400 mb-4">Chưa có API key nào</p>
+                <button
+                  onClick={() => setShowAddKey(true)}
+                  className="btn-primary inline-flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Thêm API Key đầu tiên
+                </button>
+              </div>
+            ) : (
+              <>
+                {settings.llm.apiKeys.map((keyConfig) => (
+                  <div
+                    key={keyConfig.id}
+                    className={`bg-slate-700/30 rounded-lg p-4 border-2 transition-colors ${
+                      keyConfig.enabled
+                        ? 'border-primary-600/40'
+                        : 'border-slate-600/30'
+                    }`}
+                  >
+                    {editingKey === keyConfig.id ? (
+                      // Edit Mode
+                      <div className="space-y-3">
+                        <div>
+                          <label className="label text-xs">Tên gợi nhớ</label>
+                          <input
+                            type="text"
+                            className="input text-sm"
+                            value={keyConfig.name}
+                            onChange={(e) =>
+                              handleUpdateKey(keyConfig.id, { name: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="label text-xs">API Key</label>
+                          <input
+                            type="password"
+                            className="input font-mono text-sm"
+                            value={keyConfig.key}
+                            onChange={(e) =>
+                              handleUpdateKey(keyConfig.id, { key: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="label text-xs flex items-center gap-1">
+                            <Globe className="w-3 h-3" />
+                            Proxy (Tùy chọn)
+                          </label>
+                          <input
+                            type="text"
+                            className="input font-mono text-sm"
+                            value={keyConfig.proxy || ''}
+                            onChange={(e) =>
+                              handleUpdateKey(keyConfig.id, {
+                                proxy: e.target.value || undefined,
+                              })
+                            }
+                            placeholder="http://proxy:port hoặc http://user:pass@proxy:port"
+                          />
+                        </div>
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={() => setEditingKey(null)}
+                            className="btn-secondary text-sm px-3 py-1"
+                          >
+                            Hủy
+                          </button>
+                          <button
+                            onClick={() => setEditingKey(null)}
+                            className="btn-primary text-sm px-3 py-1"
+                          >
+                            Xong
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // View Mode
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-white text-sm">
+                              {keyConfig.name}
+                            </h3>
+                            {keyConfig.proxy && (
+                              <span className="text-xs bg-blue-600/20 text-blue-300 px-2 py-0.5 rounded flex items-center gap-1">
+                                <Globe className="w-3 h-3" />
+                                Proxy
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs font-mono text-slate-400 truncate mb-2">
+                            {keyConfig.key.substring(0, 20)}...
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-slate-500">
+                            <span>
+                              Requests: {keyConfig.requestCount || 0}
+                            </span>
+                            {keyConfig.lastUsed && (
+                              <span>
+                                Dùng lần cuối:{' '}
+                                {new Date(keyConfig.lastUsed).toLocaleString('vi-VN')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleToggleKey(keyConfig.id)}
+                            className="p-2 hover:bg-slate-600/30 rounded transition-colors"
+                            title={keyConfig.enabled ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                          >
+                            {keyConfig.enabled ? (
+                              <ToggleRight className="w-5 h-5 text-green-400" />
+                            ) : (
+                              <ToggleLeft className="w-5 h-5 text-slate-500" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setEditingKey(keyConfig.id)}
+                            className="p-2 hover:bg-slate-600/30 rounded transition-colors"
+                            title="Chỉnh sửa"
+                          >
+                            <Edit2 className="w-4 h-4 text-slate-400" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteKey(keyConfig.id)}
+                            className="p-2 hover:bg-red-600/30 rounded transition-colors"
+                            title="Xóa"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-400" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add New Key Button */}
+                {!showAddKey && (
+                  <button
+                    onClick={() => setShowAddKey(true)}
+                    className="w-full bg-slate-700/30 hover:bg-slate-700/50 border-2 border-dashed border-slate-600 rounded-lg p-4 flex items-center justify-center gap-2 text-slate-400 hover:text-white transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Thêm API Key mới
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Add New Key Form */}
+            {showAddKey && (
+              <div className="bg-slate-700/30 rounded-lg p-4 border-2 border-primary-600/40">
+                <h3 className="font-semibold text-white mb-3">Thêm API Key mới</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="label text-xs">Tên gợi nhớ *</label>
+                    <input
+                      type="text"
+                      className="input text-sm"
+                      value={newKey.name}
+                      onChange={(e) => setNewKey({ ...newKey, name: e.target.value })}
+                      placeholder="VD: Key chính, Key backup..."
+                    />
+                  </div>
+                  <div>
+                    <label className="label text-xs">API Key *</label>
+                    <input
+                      type="password"
+                      className="input font-mono text-sm"
+                      value={newKey.key}
+                      onChange={(e) => setNewKey({ ...newKey, key: e.target.value })}
+                      placeholder="AIza..."
+                    />
+                  </div>
+                  <div>
+                    <label className="label text-xs flex items-center gap-1">
+                      <Globe className="w-3 h-3" />
+                      Proxy (Tùy chọn)
+                    </label>
+                    <input
+                      type="text"
+                      className="input font-mono text-sm"
+                      value={newKey.proxy}
+                      onChange={(e) => setNewKey({ ...newKey, proxy: e.target.value })}
+                      placeholder="http://proxy:port"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Hỗ trợ format: http://proxy:port hoặc http://user:pass@proxy:port
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="newKeyEnabled"
+                      checked={newKey.enabled !== false}
+                      onChange={(e) => setNewKey({ ...newKey, enabled: e.target.checked })}
+                      className="w-4 h-4"
+                    />
+                    <label htmlFor="newKeyEnabled" className="text-sm text-slate-300">
+                      Kích hoạt ngay
+                    </label>
+                  </div>
+                  <div className="flex gap-2 justify-end pt-2">
+                    <button
+                      onClick={() => {
+                        setShowAddKey(false)
+                        setNewKey({ name: '', key: '', proxy: '', enabled: true })
+                      }}
+                      className="btn-secondary text-sm"
+                    >
+                      Hủy
+                    </button>
+                    <button onClick={handleAddKey} className="btn-primary text-sm">
+                      <Plus className="w-4 h-4 inline mr-1" />
+                      Thêm
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* LLM Provider and Model Settings */}
+          <div className="space-y-4 pt-6 border-t border-slate-700">
             <div>
               <label className="label">Provider</label>
               <select
@@ -95,28 +409,8 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="label flex items-center gap-2">
-                <Key className="w-4 h-4" />
-                API Key
-              </label>
-              <input
-                type="password"
-                className="input font-mono"
-                value={settings.llm.apiKey}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    llm: { ...settings.llm, apiKey: e.target.value },
-                  })
-                }
-                placeholder="Nhập API key của bạn"
-              />
-            </div>
-
-            <div>
               <label className="label">Model</label>
-              <input
-                type="text"
+              <select
                 className="input"
                 value={settings.llm.model}
                 onChange={(e) =>
@@ -125,8 +419,43 @@ export default function SettingsPage() {
                     llm: { ...settings.llm, model: e.target.value },
                   })
                 }
-                placeholder="VD: gemini-1.5-flash"
-              />
+              >
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Khuyên dùng)</option>
+                <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Mạnh nhất)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Exp</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="label">Chiến lược Rotation</label>
+              <select
+                className="input"
+                value={settings.llm.rotationStrategy}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    llm: {
+                      ...settings.llm,
+                      rotationStrategy: e.target.value as any,
+                    },
+                  })
+                }
+              >
+                <option value="round-robin">Round Robin - Luân phiên tuần tự</option>
+                <option value="random">Random - Chọn ngẫu nhiên</option>
+                <option value="fallback">Fallback - Dùng key đầu, key khác dự phòng</option>
+              </select>
+              <p className="text-xs text-slate-400 mt-1">
+                {settings.llm.rotationStrategy === 'round-robin' &&
+                  'Sử dụng các key theo thứ tự, phân bổ đều tải'}
+                {settings.llm.rotationStrategy === 'random' &&
+                  'Chọn ngẫu nhiên key mỗi lần request'}
+                {settings.llm.rotationStrategy === 'fallback' &&
+                  'Luôn dùng key đầu tiên, tự động chuyển sang key khác nếu bị lỗi/limit'}
+              </p>
             </div>
 
             <div>

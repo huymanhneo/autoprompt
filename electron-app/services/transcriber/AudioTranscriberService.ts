@@ -11,9 +11,11 @@ export interface TranscriptionResult {
 
 export class AudioTranscriberService {
   private apiKey: string
+  private proxy?: string
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, proxy?: string) {
     this.apiKey = apiKey
+    this.proxy = proxy
   }
 
   /**
@@ -25,7 +27,30 @@ export class AudioTranscriberService {
       const audioContent = await fs.readFile(audioFilePath)
       const base64Audio = audioContent.toString('base64')
 
-      // Call Google Speech-to-Text API
+      // Call Google Speech-to-Text API with proxy support
+      const axiosConfig: any = {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': this.apiKey,
+        },
+      }
+
+      // Add proxy if configured
+      if (this.proxy) {
+        const proxyUrl = new URL(this.proxy)
+        axiosConfig.proxy = {
+          host: proxyUrl.hostname,
+          port: parseInt(proxyUrl.port) || 80,
+          protocol: proxyUrl.protocol.replace(':', ''),
+        }
+        if (proxyUrl.username && proxyUrl.password) {
+          axiosConfig.proxy.auth = {
+            username: proxyUrl.username,
+            password: proxyUrl.password,
+          }
+        }
+      }
+
       const response = await axios.post(
         'https://speech.googleapis.com/v1/speech:recognize',
         {
@@ -40,12 +65,7 @@ export class AudioTranscriberService {
             content: base64Audio,
           },
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': this.apiKey,
-          },
-        }
+        axiosConfig
       )
 
       if (!response.data.results || response.data.results.length === 0) {

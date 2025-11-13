@@ -11,8 +11,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [config, setConfig] = useState({
     llm: {
       provider: 'gemini' as const,
-      apiKey: '',
-      model: 'gemini-1.5-flash',
+      apiKey: '', // Temporary for UI
+      model: 'gemini-2.5-flash',
       temperature: 0.7,
     },
     tts: {
@@ -41,8 +41,29 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       // Final step - save and complete
       setLoading(true)
       try {
-        console.log('Saving settings:', config)
-        const result = await window.electronAPI.updateSettings(config)
+        // Convert single API key to new format
+        const settingsToSave = {
+          llm: {
+            provider: config.llm.provider,
+            apiKeys: config.llm.apiKey ? [
+              {
+                id: crypto.randomUUID(),
+                name: 'API Key chính',
+                key: config.llm.apiKey,
+                enabled: true,
+                requestCount: 0,
+              }
+            ] : [],
+            model: config.llm.model,
+            temperature: config.llm.temperature,
+            rotationStrategy: 'round-robin' as const,
+          },
+          tts: config.tts,
+          audio: config.audio,
+        }
+
+        console.log('Saving settings:', settingsToSave)
+        const result = await window.electronAPI.updateSettings(settingsToSave)
         console.log('Settings saved successfully:', result)
         setTimeout(() => {
           onComplete()
@@ -178,9 +199,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         })
                       }
                     >
-                      <option value="gemini-1.5-flash">Gemini 1.5 Flash (Khuyên dùng)</option>
-                      <option value="gemini-1.5-pro">Gemini 1.5 Pro (Mạnh hơn)</option>
-                      <option value="gemini-1.0-pro">Gemini 1.0 Pro (Legacy)</option>
+                      <option value="gemini-2.5-flash">Gemini 2.5 Flash (Khuyên dùng - Nhanh)</option>
+                      <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (Rất nhanh)</option>
+                      <option value="gemini-2.5-pro">Gemini 2.5 Pro (Mạnh nhất)</option>
+                      <option value="gemini-2.0-flash">Gemini 2.0 Flash (Ổn định)</option>
+                      <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                      <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Exp</option>
                     </select>
                   </div>
 

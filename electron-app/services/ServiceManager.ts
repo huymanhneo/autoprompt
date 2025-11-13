@@ -4,17 +4,29 @@ import { TTSService } from './tts/TTSService'
 import { AudioService } from './audio/AudioService'
 import { StorageService } from './storage/StorageService'
 import { AudioTranscriberService } from './transcriber/AudioTranscriberService'
+import { v4 as uuidv4 } from 'uuid'
+
+export interface APIKeyConfig {
+  id: string
+  name: string // Tên gợi nhớ: "Key chính", "Key backup", etc.
+  key: string
+  proxy?: string // Optional proxy URL (http://proxy:port hoặc http://user:pass@proxy:port)
+  enabled: boolean
+  lastUsed?: string // ISO timestamp
+  requestCount?: number // Số requests đã dùng
+}
 
 export interface AppSettings {
   llm: {
     provider: 'gemini' | 'openai' | 'claude'
-    apiKey: string
+    apiKeys: APIKeyConfig[] // CHANGED: from single apiKey to multiple apiKeys
     model: string
     temperature: number
+    rotationStrategy: 'round-robin' | 'random' | 'fallback' // Chiến lược rotation
   }
   tts: {
     provider: 'google' | 'elevenlabs' | 'fpt' | 'viettel'
-    apiKey: string
+    apiKey: string // Keep simple for TTS
     voice: string
     speed: number
   }
@@ -27,9 +39,10 @@ export interface AppSettings {
 const defaultSettings: AppSettings = {
   llm: {
     provider: 'gemini',
-    apiKey: '',
-    model: 'gemini-1.5-flash',
+    apiKeys: [], // Start with empty array, user will add keys
+    model: 'gemini-2.5-flash',
     temperature: 0.7,
+    rotationStrategy: 'round-robin',
   },
   tts: {
     provider: 'google',
@@ -56,6 +69,9 @@ export class ServiceManager {
       defaults: defaultSettings,
     })
 
+    // Migrate old settings to new format (if needed)
+    this.migrateOldSettings()
+
     // Initialize services
     this.audioService = new AudioService()
     this.storageService = new StorageService()
@@ -66,22 +82,64 @@ export class ServiceManager {
     this.initializeTranscriber()
   }
 
+  /**
+   * Migrate old single API key format to new multiple keys format
+   */
+  private migrateOldSettings() {
+    const settings = this.store.store as any
+
+    // Check if old format exists (single apiKey instead of apiKeys array)
+    if (settings.llm && typeof settings.llm.apiKey === 'string') {
+      console.log('[ServiceManager] Migrating old settings format to new format')
+
+      const oldApiKey = settings.llm.apiKey
+
+      // Create new format with single key
+      const newLLMSettings = {
+        ...settings.llm,
+        apiKeys: oldApiKey
+          ? [
+              {
+                id: uuidv4(),
+                name: 'API Key chính',
+                key: oldApiKey,
+                enabled: true,
+                requestCount: 0,
+              } as APIKeyConfig,
+            ]
+          : [],
+        rotationStrategy: 'round-robin' as const,
+      }
+
+      // Remove old apiKey field
+      delete newLLMSettings.apiKey
+
+      // Save migrated settings
+      this.store.set('llm', newLLMSettings as any)
+      console.log('[ServiceManager] Migration completed successfully')
+    }
+  }
+
   private initializeTranscriber() {
     const settings = this.store.get('llm')
-    if (settings.apiKey) {
-      // Use same API key as LLM for Google Speech-to-Text
-      this.transcriberService = new AudioTranscriberService(settings.apiKey)
+    // Use first enabled API key for Google Speech-to-Text
+    const firstKey = settings.apiKeys.find((k) => k.enabled)
+    if (firstKey) {
+      this.transcriberService = new AudioTranscriberService(firstKey.key, firstKey.proxy)
     }
   }
 
   private initializeLLM() {
     const settings = this.store.get('llm')
-    if (settings.apiKey) {
+    // Initialize with all enabled API keys
+    const enabledKeys = settings.apiKeys.filter((k) => k.enabled)
+    if (enabledKeys.length > 0) {
       this.llmService = new LLMService({
         provider: settings.provider,
-        apiKey: settings.apiKey,
+        apiKeys: enabledKeys, // Pass all enabled keys
         model: settings.model,
         temperature: settings.temperature,
+        rotationStrategy: settings.rotationStrategy,
       })
     }
   }
