@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Sparkles, FileText, BookOpen } from 'lucide-react'
+import { Loader2, Sparkles, FileText, BookOpen, Save } from 'lucide-react'
 
 interface Step2OutlineGeneratorProps {
   project: any
@@ -13,13 +13,14 @@ export default function Step2OutlineGenerator({
   onUpdate
 }: Step2OutlineGeneratorProps) {
   const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [outline, setOutline] = useState(project.outline || null)
   const [formData, setFormData] = useState({
-    idea: project.mode === 'idea' ? '' : '',
-    scriptFile: '',
-    numberOfChapters: 5,
-    style: 'storytelling',
-    tone: 'friendly'
+    idea: project.settings?.idea || '',
+    scriptFile: project.settings?.scriptFile || '',
+    numberOfChapters: project.settings?.numberOfChapters || 5,
+    style: project.settings?.style || 'storytelling',
+    tone: project.settings?.tone || 'friendly'
   })
 
   const handleGenerate = async () => {
@@ -70,6 +71,39 @@ export default function Step2OutlineGenerator({
     } catch (error: any) {
       console.error('[Step2] Error loading script:', error)
       alert(`Lỗi: ${error.message}`)
+    }
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      // Save form data to project settings
+      const updatedSettings = {
+        ...project.settings,
+        ...formData
+      }
+
+      await window.electronAPI.updateProject({
+        id: project.id,
+        settings: updatedSettings
+      })
+
+      // If outline exists, save it too
+      if (outline) {
+        await window.electronAPI.updateProject({
+          id: project.id,
+          outline: outline,
+          status: 'outline_generated'
+        })
+      }
+
+      await onUpdate()
+      alert('Đã lưu!')
+    } catch (error: any) {
+      console.error('[Step2] Error saving:', error)
+      alert(`Lỗi khi lưu: ${error.message}`)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -178,23 +212,43 @@ export default function Step2OutlineGenerator({
               </div>
             </div>
 
-            <button
-              onClick={handleGenerate}
-              disabled={loading}
-              className="btn-primary w-full flex items-center justify-center gap-2 text-lg py-3"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Đang tạo dàn ý...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Tạo dàn ý với AI
-                </>
-              )}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleSave}
+                disabled={loading || saving}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Lưu
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={handleGenerate}
+                disabled={loading || saving}
+                className="btn-primary flex-1 flex items-center justify-center gap-2 text-lg py-3"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Đang tạo dàn ý...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    Tạo dàn ý với AI
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-6">

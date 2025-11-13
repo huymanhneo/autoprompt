@@ -171,6 +171,50 @@ ipcMain.handle('storage:deleteProject', async (_event, projectId) => {
   }
 })
 
+// Chapter Handlers
+ipcMain.handle('storage:listChapters', async (_event, projectId) => {
+  try {
+    const storageService = getServiceManager().getStorageService()
+    const chapters = storageService.listChapters(projectId)
+    return { success: true, data: chapters }
+  } catch (error: any) {
+    console.error('Error listing chapters:', error)
+    throw new Error(error.message)
+  }
+})
+
+ipcMain.handle('storage:saveChapter', async (_event, params) => {
+  try {
+    const storageService = getServiceManager().getStorageService()
+
+    // Check if chapter exists
+    const existing = storageService.listChapters(params.projectId).find(
+      (ch) => ch.chapter_number === params.chapterNumber
+    )
+
+    if (existing) {
+      // Update existing chapter
+      storageService.updateChapter(existing.id, {
+        title: params.title,
+        content: params.content,
+      })
+      return { success: true, data: storageService.getChapter(existing.id) }
+    } else {
+      // Create new chapter
+      const chapter = storageService.createChapter({
+        projectId: params.projectId,
+        chapterNumber: params.chapterNumber,
+        title: params.title,
+        content: params.content,
+      })
+      return { success: true, data: chapter }
+    }
+  } catch (error: any) {
+    console.error('Error saving chapter:', error)
+    throw new Error(error.message)
+  }
+})
+
 // File System Handlers
 ipcMain.handle('fs:selectDirectory', async () => {
   const result = await dialog.showOpenDialog({

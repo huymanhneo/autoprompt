@@ -12,9 +12,23 @@ export default function Step3ContentWriter({
   onNext,
   onUpdate
 }: Step3ContentWriterProps) {
-  const [chapters, setChapters] = useState<any[]>(project.chapters || [])
+  // Convert database chapters to UI format
+  const initChapters = () => {
+    if (!project.outline?.chapters) return []
+    return project.outline.chapters.map((_: any, index: number) => {
+      const dbChapter = project.chapters?.find((ch: any) => ch.chapter_number === index + 1)
+      return dbChapter ? {
+        number: dbChapter.chapter_number,
+        title: dbChapter.title,
+        content: dbChapter.content
+      } : null
+    })
+  }
+
+  const [chapters, setChapters] = useState<any[]>(initChapters())
   const [generatingChapter, setGeneratingChapter] = useState<number | null>(null)
   const [selectedChapter, setSelectedChapter] = useState<number>(0)
+  const [saving, setSaving] = useState(false)
 
   const handleGenerateChapter = async (chapterNumber: number) => {
     if (!project.outline) {
@@ -33,12 +47,23 @@ export default function Step3ContentWriter({
       })
 
       if (result.success) {
-        const updatedChapters = [...chapters]
-        updatedChapters[chapterNumber] = {
+        const newChapter = {
           number: chapterNumber + 1,
           title: project.outline.chapters[chapterNumber].title,
           content: result.data
         }
+
+        // Save to database immediately
+        await window.electronAPI.saveChapter({
+          projectId: project.id,
+          chapterNumber: chapterNumber + 1,
+          title: newChapter.title,
+          content: newChapter.content
+        })
+
+        // Update UI state
+        const updatedChapters = [...chapters]
+        updatedChapters[chapterNumber] = newChapter
         setChapters(updatedChapters)
 
         // Check if all chapters are generated
@@ -46,14 +71,16 @@ export default function Step3ContentWriter({
           (_: any, idx: number) => idx === chapterNumber || updatedChapters[idx]?.content
         )
 
-        // Save to database with status update if all chapters are done
-        await window.electronAPI.updateProject({
-          id: project.id,
-          chapters: updatedChapters,
-          ...(allGenerated && { status: 'content_generated' })
-        })
+        // Update project status if all chapters are done
+        if (allGenerated) {
+          await window.electronAPI.updateProject({
+            id: project.id,
+            status: 'content_generated'
+          })
+        }
 
-        onUpdate({ chapters: updatedChapters })
+        // Reload project data
+        await onUpdate()
         console.log('[Step3] Chapter generated and saved')
       }
     } catch (error: any) {
@@ -77,6 +104,39 @@ export default function Step3ContentWriter({
   const allChaptersGenerated = project.outline?.chapters?.every(
     (_: any, index: number) => chapters[index]?.content
   )
+
+  const handleSaveAll = async () => {
+    setSaving(true)
+    try {
+      // Save all existing chapters
+      for (let i = 0; i < chapters.length; i++) {
+        if (chapters[i]?.content) {
+          await window.electronAPI.saveChapter({
+            projectId: project.id,
+            chapterNumber: i + 1,
+            title: chapters[i].title,
+            content: chapters[i].content
+          })
+        }
+      }
+
+      // Update project status if all done
+      if (allChaptersGenerated) {
+        await window.electronAPI.updateProject({
+          id: project.id,
+          status: 'content_generated'
+        })
+      }
+
+      await onUpdate()
+      alert('Đã lưu tất cả nội dung!')
+    } catch (error: any) {
+      console.error('[Step3] Error saving:', error)
+      alert(`Lỗi khi lưu: ${error.message}`)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="max-w-6xl mx-auto animate-fade-in">
@@ -211,16 +271,42 @@ export default function Step3ContentWriter({
           </div>
         )}
 
-        {allChaptersGenerated && (
-          <div className="mt-6 pt-6 border-t border-slate-700">
-            <button
-              onClick={onNext}
-              className="btn-primary w-full text-lg py-3"
-            >
-              Tiếp tục sang Bước 4
-            </button>
+        {/* Save and Navigation Buttons */}
+        <div className="mt-6 pt-6 border-t border-slate-700">
+          <div className="flex gap-3">
+            {/* Save button - always visible if any content exists */}
+            {chapters.some(ch => ch?.content) && (
+              <button
+                onClick={handleSaveAll}
+                disabled={saving || generatingChapter !== null}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Lưu tất cả
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Next button - only visible when all chapters are done */}
+            {allChaptersGenerated && (
+              <button
+                onClick={onNext}
+                disabled={saving || generatingChapter !== null}
+                className="btn-primary flex-1 text-lg py-3"
+              >
+                Tiếp tục sang Bước 4
+              </button>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

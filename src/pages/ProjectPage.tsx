@@ -27,7 +27,14 @@ export default function ProjectPage() {
     try {
       const result = await window.electronAPI.getProject(projectId!)
       if (result.success) {
-        setProject(result.data)
+        // Load chapters separately
+        const chaptersResult = await window.electronAPI.listChapters(projectId!)
+        const projectWithChapters = {
+          ...result.data,
+          chapters: chaptersResult.success ? chaptersResult.data : []
+        }
+
+        setProject(projectWithChapters)
         // Only determine step on initial load (when loading is true)
         if (loading) {
           const stepMap: Record<string, number> = {
@@ -53,7 +60,13 @@ export default function ProjectPage() {
     try {
       const result = await window.electronAPI.getProject(projectId!)
       if (result.success) {
-        setProject(result.data)
+        // Load chapters separately
+        const chaptersResult = await window.electronAPI.listChapters(projectId!)
+        const projectWithChapters = {
+          ...result.data,
+          chapters: chaptersResult.success ? chaptersResult.data : []
+        }
+        setProject(projectWithChapters)
       }
     } catch (error) {
       console.error('Error updating project:', error)
