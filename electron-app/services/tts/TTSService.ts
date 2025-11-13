@@ -310,26 +310,39 @@ export class TTSService {
   ): Promise<string> {
     try {
       // VietTTS requires Python script
+      // Debug: Log environment information
+      console.log('[VietTTS] Debug - Environment Information:')
+      console.log('  __dirname:', __dirname)
+      console.log('  __filename:', __filename)
+      console.log('  process.cwd():', process.cwd())
+
       // Try multiple possible paths for the Python script (handles both dev and production builds)
       const possiblePaths = [
-        path.join(process.cwd(), 'electron-app/scripts/viettts_wrapper.py'), // Dev mode
-        path.join(__dirname, '../scripts/viettts_wrapper.py'), // If bundled in same structure
+        path.join(process.cwd(), 'electron-app/scripts/viettts_wrapper.py'), // Dev mode - from project root
+        path.join(__dirname, 'scripts/viettts_wrapper.py'), // Same level as TTSService
+        path.join(__dirname, '../scripts/viettts_wrapper.py'), // One level up
+        path.join(__dirname, '../../scripts/viettts_wrapper.py'), // Two levels up
         path.join(__dirname, '../../electron-app/scripts/viettts_wrapper.py'), // From dist-electron
+        path.join(__dirname, '../../../electron-app/scripts/viettts_wrapper.py'), // Three levels up
       ]
+
+      console.log('[VietTTS] Trying to find Python script in the following paths:')
 
       let scriptPath: string | null = null
       for (const testPath of possiblePaths) {
+        console.log(`  - Testing: ${testPath}`)
         try {
           await fs.access(testPath)
           scriptPath = testPath
-          console.log('[VietTTS] Found script at:', testPath)
+          console.log(`  ✓ FOUND! Using script at: ${testPath}`)
           break
         } catch {
-          // Try next path
+          console.log(`    ✗ Not found`)
         }
       }
 
       if (!scriptPath) {
+        console.error('[VietTTS] ERROR: Python script not found in any of the tested paths!')
         throw new Error('VietTTS Python script not found. Please run setup: pip install vietTTS')
       }
 
