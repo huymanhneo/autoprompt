@@ -26,7 +26,7 @@ export default function Step7CorePrompts({ project, onNext, onUpdate }: any) {
           id: project.id,
           corePrompts: result.data
         })
-        onUpdate({ corePrompts: result.data })
+        await onUpdate()
       }
     } catch (error: any) {
       alert(`Lỗi: ${error.message}`)

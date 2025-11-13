@@ -4,7 +4,7 @@ import { Loader2, Sparkles, FileText, BookOpen, Save } from 'lucide-react'
 interface Step2OutlineGeneratorProps {
   project: any
   onNext: () => void
-  onUpdate: (data: any) => void
+  onUpdate: () => void
 }
 
 export default function Step2OutlineGenerator({
@@ -48,7 +48,7 @@ export default function Step2OutlineGenerator({
           outline: result.data,
           status: 'outline_generated'
         })
-        onUpdate({ outline: result.data })
+        await onUpdate()
       }
     } catch (error: any) {
       console.error('[Step2] Error generating outline:', error)

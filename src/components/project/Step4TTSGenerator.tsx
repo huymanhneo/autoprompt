@@ -4,7 +4,7 @@ import { Loader2, Mic, Check, Volume2 } from 'lucide-react'
 interface Step4TTSGeneratorProps {
   project: any
   onNext: () => void
-  onUpdate: (data: any) => void
+  onUpdate: () => void
 }
 
 export default function Step4TTSGenerator({
@@ -52,7 +52,7 @@ export default function Step4TTSGenerator({
         audioFiles: generatedFiles
       })
 
-      onUpdate({ audioFiles: generatedFiles })
+      await onUpdate()
       console.log('[Step4] All audio files generated')
     } catch (error: any) {
       console.error('[Step4] Error generating audio:', error)

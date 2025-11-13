@@ -69,7 +69,7 @@ export default function Step6SceneSplitter({ project, onNext, onUpdate }: any) {
         audioSegments: transcribedSegments
       })
 
-      onUpdate({ audioSegments: transcribedSegments })
+      await onUpdate()
       console.log('[Step6] All segments transcribed successfully')
     } catch (error: any) {
       console.error('[Step6] Error:', error)

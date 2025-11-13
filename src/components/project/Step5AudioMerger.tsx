@@ -24,7 +24,7 @@ export default function Step5AudioMerger({ project, onNext, onUpdate }: any) {
           id: project.id,
           mergedAudio: result.data
         })
-        onUpdate({ mergedAudio: result.data })
+        await onUpdate()
       }
     } catch (error: any) {
       alert(`Lỗi: ${error.message}`)

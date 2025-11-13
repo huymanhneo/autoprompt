@@ -31,7 +31,7 @@ export default function Step8VideoPrompts({ project, onUpdate }: any) {
           videoPrompts: result.data,
           status: 'completed'
         })
-        onUpdate({ videoPrompts: result.data })
+        await onUpdate()
       }
     } catch (error: any) {
       alert(`Lỗi: ${error.message}`)

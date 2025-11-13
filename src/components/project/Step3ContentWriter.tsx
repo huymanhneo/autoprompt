@@ -4,7 +4,7 @@ import { Loader2, Sparkles, FileEdit, Check, Play } from 'lucide-react'
 interface Step3ContentWriterProps {
   project: any
   onNext: () => void
-  onUpdate: (data: any) => void
+  onUpdate: () => void
 }
 
 export default function Step3ContentWriter({
