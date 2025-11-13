@@ -509,33 +509,43 @@ export default function SettingsPage() {
                   })
                 }
               >
-                <option value="google">Google TTS (Miễn phí)</option>
+                <option value="google">Google Cloud Text-to-Speech</option>
                 <option value="elevenlabs">ElevenLabs (Trả phí)</option>
                 <option value="fpt">FPT AI (Miễn phí)</option>
                 <option value="viettel">Viettel AI (Miễn phí)</option>
               </select>
             </div>
 
-            {settings.tts.provider !== 'google' && (
-              <div>
-                <label className="label flex items-center gap-2">
-                  <Key className="w-4 h-4" />
-                  API Key
-                </label>
-                <input
-                  type="password"
-                  className="input font-mono"
-                  value={settings.tts.apiKey}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      tts: { ...settings.tts, apiKey: e.target.value },
-                    })
-                  }
-                  placeholder="Nhập API key (nếu có)"
-                />
-              </div>
-            )}
+            <div>
+              <label className="label flex items-center gap-2">
+                <Key className="w-4 h-4" />
+                API Key
+                {settings.tts.provider === 'google' && (
+                  <span className="text-xs text-amber-400">(Bắt buộc cho Google TTS)</span>
+                )}
+              </label>
+              <input
+                type="password"
+                className="input font-mono"
+                value={settings.tts.apiKey}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    tts: { ...settings.tts, apiKey: e.target.value },
+                  })
+                }
+                placeholder={
+                  settings.tts.provider === 'google'
+                    ? 'Nhập Google Cloud API Key'
+                    : 'Nhập API key'
+                }
+              />
+              {settings.tts.provider === 'google' && (
+                <p className="text-xs text-slate-400 mt-1">
+                  💡 Cần enable Cloud Text-to-Speech API trong Google Cloud Console
+                </p>
+              )}
+            </div>
 
             <div>
               <label className="label">Giọng đọc mặc định</label>
