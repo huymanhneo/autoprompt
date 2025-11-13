@@ -23,10 +23,10 @@ function App() {
       console.log('[App] Fetching settings...')
       const settings = await window.electronAPI.getSettings()
       console.log('[App] Settings received:', settings)
-      // Check if LLM API key is configured
-      const hasApiKey = settings?.llm?.apiKey && settings.llm.apiKey.length > 0
-      console.log('[App] Has API key:', hasApiKey)
-      setIsSetupComplete(hasApiKey)
+      // Check if LLM API keys are configured (multi-key system)
+      const hasApiKeys = settings?.llm?.apiKeys && settings.llm.apiKeys.length > 0
+      console.log('[App] Has API keys:', hasApiKeys)
+      setIsSetupComplete(hasApiKeys)
     } catch (error) {
       console.error('[App] Error checking setup status:', error)
       setIsSetupComplete(false)
