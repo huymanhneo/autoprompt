@@ -5,6 +5,11 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import { GoogleAuth } from 'google-auth-library'
 import { GoogleGenAI } from '@google/genai'
+import { fileURLToPath } from 'url'
+
+// Fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const execAsync = promisify(exec)
 
