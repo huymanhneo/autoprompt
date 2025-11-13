@@ -1,5 +1,6 @@
 import { ipcMain, dialog } from 'electron'
 import fs from 'fs/promises'
+import path from 'path'
 import { getServiceManager } from '../services/ServiceManager'
 
 // LLM Handlers
@@ -272,5 +273,44 @@ ipcMain.handle('settings:update', async (_event, settings) => {
   } catch (error: any) {
     console.error('[IPC] Error updating settings:', error)
     throw new Error(error.message || 'Failed to update settings')
+  }
+})
+
+// File selection handler for Google credentials
+ipcMain.handle('file:selectGoogleCredentials', async () => {
+  try {
+    const { dialog, app } = await import('electron')
+    const result = await dialog.showOpenDialog({
+      title: 'Select Google Service Account Credentials',
+      properties: ['openFile'],
+      filters: [
+        { name: 'JSON Files', extensions: ['json'] }
+      ]
+    })
+
+    if (result.canceled || !result.filePaths.length) {
+      return { success: false, message: 'No file selected' }
+    }
+
+    const sourcePath = result.filePaths[0]
+
+    // Copy file to app data directory for persistence
+    const userDataPath = app.getPath('userData')
+    const credentialsDir = path.join(userDataPath, 'credentials')
+
+    // Create credentials directory if it doesn't exist
+    await fs.mkdir(credentialsDir, { recursive: true })
+
+    const destPath = path.join(credentialsDir, 'google-tts-credentials.json')
+
+    // Copy the file
+    await fs.copyFile(sourcePath, destPath)
+
+    console.log('[IPC] Google credentials copied to:', destPath)
+
+    return { success: true, path: destPath }
+  } catch (error: any) {
+    console.error('[IPC] Error selecting credentials file:', error)
+    throw new Error(error.message || 'Failed to select credentials file')
   }
 })

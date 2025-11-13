@@ -3,12 +3,14 @@ import fs from 'fs/promises'
 import path from 'path'
 import { exec } from 'child_process'
 import { promisify } from 'util'
+import { GoogleAuth } from 'google-auth-library'
 
 const execAsync = promisify(exec)
 
 export interface TTSConfig {
   provider: 'google' | 'elevenlabs' | 'fpt' | 'viettel'
   apiKey?: string
+  googleCredentialsPath?: string // Path to Google Service Account JSON file
   voice: string
   speed?: number
 }
@@ -76,14 +78,27 @@ export class TTSService {
     outputPath: string
   ): Promise<string> {
     try {
-      const apiKey = this.config.apiKey || process.env.GOOGLE_API_KEY || ''
-
-      if (!apiKey) {
-        throw new Error('Google API key is required for Text-to-Speech. Please add your API key in Settings.')
+      // Check if credentials file exists
+      if (!this.config.googleCredentialsPath) {
+        throw new Error('Google Service Account credentials file is required for Text-to-Speech. Please upload credentials JSON file in Settings.')
       }
 
-      // Google Cloud Text-to-Speech API - API key goes in URL query parameter
-      const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`
+      // Initialize Google Auth with Service Account
+      const auth = new GoogleAuth({
+        keyFile: this.config.googleCredentialsPath,
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      })
+
+      // Get access token
+      const client = await auth.getClient()
+      const accessToken = await client.getAccessToken()
+
+      if (!accessToken.token) {
+        throw new Error('Failed to get access token from Service Account credentials')
+      }
+
+      // Google Cloud Text-to-Speech API with OAuth2 authentication
+      const url = 'https://texttospeech.googleapis.com/v1/text:synthesize'
 
       const response = await axios.post(
         url,
@@ -101,6 +116,7 @@ export class TTSService {
         {
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken.token}`,
           },
         }
       )
@@ -114,8 +130,12 @@ export class TTSService {
       const errorMsg = error.response?.data?.error?.message || error.message
       console.error('Google TTS Error:', error.response?.data || error.message)
 
+      if (error.code === 'ENOENT') {
+        throw new Error('Google Service Account credentials file not found. Please upload a valid JSON file in Settings.')
+      }
+
       if (error.response?.status === 403) {
-        throw new Error('Google TTS API key invalid or Cloud Text-to-Speech API not enabled. Please:\n1. Enable Cloud Text-to-Speech API in Google Cloud Console\n2. Check your API key has Text-to-Speech permissions')
+        throw new Error('Google TTS authentication failed. Please:\n1. Enable Cloud Text-to-Speech API in Google Cloud Console\n2. Ensure your Service Account has Text-to-Speech permissions\n3. Re-upload your credentials file')
       }
 
       throw new Error(`Google TTS failed: ${errorMsg}`)

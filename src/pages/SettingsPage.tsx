@@ -22,6 +22,7 @@ interface Settings {
   tts: {
     provider: 'google' | 'elevenlabs' | 'fpt' | 'viettel'
     apiKey: string
+    googleCredentialsPath?: string
     voice: string
   }
   audio: {
@@ -65,6 +66,25 @@ export default function SettingsPage() {
       alert('Lỗi khi lưu cài đặt')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleSelectGoogleCredentials = async () => {
+    try {
+      const result = await window.electronAPI.selectGoogleCredentials()
+      if (result.success && result.path) {
+        setSettings({
+          ...settings!,
+          tts: {
+            ...settings!.tts,
+            googleCredentialsPath: result.path,
+          },
+        })
+        alert('Đã tải lên credentials file thành công!')
+      }
+    } catch (error) {
+      console.error('Error selecting credentials:', error)
+      alert('Lỗi khi chọn credentials file')
     }
   }
 
@@ -516,36 +536,72 @@ export default function SettingsPage() {
               </select>
             </div>
 
-            <div>
-              <label className="label flex items-center gap-2">
-                <Key className="w-4 h-4" />
-                API Key
-                {settings.tts.provider === 'google' && (
-                  <span className="text-xs text-amber-400">(Bắt buộc cho Google TTS)</span>
-                )}
-              </label>
-              <input
-                type="password"
-                className="input font-mono"
-                value={settings.tts.apiKey}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    tts: { ...settings.tts, apiKey: e.target.value },
-                  })
-                }
-                placeholder={
-                  settings.tts.provider === 'google'
-                    ? 'Nhập Google Cloud API Key'
-                    : 'Nhập API key'
-                }
-              />
-              {settings.tts.provider === 'google' && (
-                <p className="text-xs text-slate-400 mt-1">
-                  💡 Cần enable Cloud Text-to-Speech API trong Google Cloud Console
-                </p>
-              )}
-            </div>
+            {settings.tts.provider === 'google' ? (
+              <div>
+                <label className="label flex items-center gap-2">
+                  <Key className="w-4 h-4" />
+                  Google Service Account Credentials
+                  <span className="text-xs text-amber-400">(Bắt buộc)</span>
+                </label>
+
+                <div className="space-y-3">
+                  {settings.tts.googleCredentialsPath ? (
+                    <div className="bg-green-600/10 border border-green-600/30 rounded-lg p-3">
+                      <p className="text-xs text-green-400 mb-1">✓ Credentials file đã được tải lên:</p>
+                      <p className="text-xs text-slate-300 font-mono break-all">
+                        {settings.tts.googleCredentialsPath}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-600/10 border border-amber-600/30 rounded-lg p-3">
+                      <p className="text-xs text-amber-400">
+                        ⚠️ Chưa có credentials file. Vui lòng upload file JSON từ Google Cloud Console.
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleSelectGoogleCredentials}
+                    className="btn-secondary w-full flex items-center justify-center gap-2"
+                  >
+                    <Key className="w-4 h-4" />
+                    {settings.tts.googleCredentialsPath ? 'Thay đổi Credentials File' : 'Upload Credentials File'}
+                  </button>
+
+                  <div className="bg-slate-700/30 rounded-lg p-3 text-xs text-slate-400 space-y-2">
+                    <p className="font-semibold text-slate-300">📖 Hướng dẫn tạo Service Account:</p>
+                    <ol className="list-decimal list-inside space-y-1 ml-2">
+                      <li>Vào <a href="https://console.cloud.google.com/" target="_blank" className="text-primary-400 hover:underline">Google Cloud Console</a></li>
+                      <li>Chọn project → IAM & Admin → Service Accounts</li>
+                      <li>Create Service Account → đặt tên và Create</li>
+                      <li>Grant role: "Cloud Text-to-Speech User"</li>
+                      <li>Tạo Key (JSON format) và download file JSON</li>
+                      <li>Enable "Cloud Text-to-Speech API" trong APIs & Services</li>
+                      <li>Upload file JSON vừa download bằng nút bên trên</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label className="label flex items-center gap-2">
+                  <Key className="w-4 h-4" />
+                  API Key
+                </label>
+                <input
+                  type="password"
+                  className="input font-mono"
+                  value={settings.tts.apiKey}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      tts: { ...settings.tts, apiKey: e.target.value },
+                    })
+                  }
+                  placeholder="Nhập API key"
+                />
+              </div>
+            )}
 
             <div>
               <label className="label">Giọng đọc mặc định</label>

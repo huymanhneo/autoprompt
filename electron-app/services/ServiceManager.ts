@@ -26,7 +26,8 @@ export interface AppSettings {
   }
   tts: {
     provider: 'google' | 'elevenlabs' | 'fpt' | 'viettel'
-    apiKey: string // Keep simple for TTS
+    apiKey: string // For non-Google providers
+    googleCredentialsPath?: string // For Google Service Account JSON file
     voice: string
     speed: number
   }
@@ -149,6 +150,7 @@ export class ServiceManager {
     this.ttsService = new TTSService({
       provider: settings.provider,
       apiKey: settings.apiKey,
+      googleCredentialsPath: settings.googleCredentialsPath,
       voice: settings.voice,
       speed: settings.speed,
     })

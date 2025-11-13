@@ -39,6 +39,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:get'),
   updateSettings: (settings: any) => ipcRenderer.invoke('settings:update', settings),
+  selectGoogleCredentials: () => ipcRenderer.invoke('file:selectGoogleCredentials'),
 
   // Events
   onProgress: (callback: (progress: any) => void) => {
@@ -74,6 +75,7 @@ export interface IElectronAPI {
   readFile: (filePath: string) => Promise<string>
   getSettings: () => Promise<any>
   updateSettings: (settings: any) => Promise<void>
+  selectGoogleCredentials: () => Promise<{ success: boolean; path?: string; message?: string }>
   onProgress: (callback: (progress: any) => void) => void
   onError: (callback: (error: any) => void) => void
 }
