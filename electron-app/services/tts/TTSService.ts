@@ -9,7 +9,7 @@ import { GoogleGenAI } from '@google/genai'
 const execAsync = promisify(exec)
 
 export interface TTSConfig {
-  provider: 'google' | 'gemini' | 'elevenlabs' | 'fpt' | 'viettel'
+  provider: 'google' | 'gemini' | 'viettts' | 'elevenlabs' | 'fpt' | 'viettel'
   apiKey?: string
   googleCredentialsPath?: string // Path to Google Service Account JSON file (for Google Cloud TTS)
   voice: string
@@ -47,6 +47,8 @@ export class TTSService {
         return this.generateWithGoogle(request.text, voice, speed, request.outputPath)
       case 'gemini':
         return this.generateWithGemini(request.text, voice, speed, request.outputPath)
+      case 'viettts':
+        return this.generateWithVietTTS(request.text, voice, speed, request.outputPath)
       case 'elevenlabs':
         return this.generateWithElevenLabs(request.text, voice, speed, request.outputPath)
       case 'fpt':
@@ -64,6 +66,8 @@ export class TTSService {
         return this.getGoogleVoices()
       case 'gemini':
         return this.getGeminiVoices()
+      case 'viettts':
+        return this.getVietTTSVoices()
       case 'elevenlabs':
         return this.getElevenLabsVoices()
       case 'fpt':
@@ -287,6 +291,100 @@ export class TTSService {
         id: 'Aoede',
         name: 'Aoede (Nữ, Dịu dàng)',
         language: 'en-US',
+        gender: 'female',
+      },
+    ]
+  }
+
+  // ===== VIETTTS (NTT123) =====
+  private async generateWithVietTTS(
+    text: string,
+    voice: string,
+    speed: number,
+    outputPath: string
+  ): Promise<string> {
+    try {
+      // VietTTS requires Python script
+      // Create Python script path
+      const scriptPath = path.join(__dirname, '../../scripts/viettts_wrapper.py')
+
+      // Check if Python script exists
+      try {
+        await fs.access(scriptPath)
+      } catch {
+        throw new Error('VietTTS Python script not found. Please run setup: pip install vietTTS')
+      }
+
+      // Escape text for command line
+      const escapedText = text.replace(/"/g, '\\"').replace(/\n/g, ' ')
+
+      // Call Python script
+      const command = `python "${scriptPath}" --text "${escapedText}" --voice "${voice}" --speed ${speed} --output "${outputPath}"`
+
+      console.log('[VietTTS] Running command:', command)
+
+      const { stdout, stderr } = await execAsync(command, {
+        timeout: 120000, // 2 minutes timeout
+        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+      })
+
+      if (stderr && !stderr.includes('UserWarning')) {
+        console.warn('[VietTTS] Warning:', stderr)
+      }
+
+      // Check if output file was created
+      try {
+        await fs.access(outputPath)
+        console.log('[VietTTS] Audio generated successfully:', outputPath)
+        return outputPath
+      } catch {
+        throw new Error('VietTTS failed to generate audio file')
+      }
+    } catch (error: any) {
+      console.error('VietTTS Error:', error)
+
+      if (error.message?.includes('not found') || error.code === 'ENOENT') {
+        throw new Error('Python or VietTTS not installed. Please install: pip install vietTTS')
+      }
+
+      if (error.killed || error.signal === 'SIGTERM') {
+        throw new Error('VietTTS generation timeout (exceeded 2 minutes)')
+      }
+
+      throw new Error(`VietTTS failed: ${error.message}`)
+    }
+  }
+
+  private getVietTTSVoices(): TTSVoice[] {
+    return [
+      {
+        id: 'northern_female_1',
+        name: 'Nữ Miền Bắc 1',
+        language: 'vi-VN',
+        gender: 'female',
+      },
+      {
+        id: 'northern_male_1',
+        name: 'Nam Miền Bắc 1',
+        language: 'vi-VN',
+        gender: 'male',
+      },
+      {
+        id: 'southern_female_1',
+        name: 'Nữ Miền Nam 1',
+        language: 'vi-VN',
+        gender: 'female',
+      },
+      {
+        id: 'southern_male_1',
+        name: 'Nam Miền Nam 1',
+        language: 'vi-VN',
+        gender: 'male',
+      },
+      {
+        id: 'central_female_1',
+        name: 'Nữ Miền Trung 1',
+        language: 'vi-VN',
         gender: 'female',
       },
     ]

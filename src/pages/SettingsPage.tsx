@@ -20,7 +20,7 @@ interface Settings {
     rotationStrategy: 'round-robin' | 'random' | 'fallback'
   }
   tts: {
-    provider: 'google' | 'gemini' | 'elevenlabs' | 'fpt' | 'viettel'
+    provider: 'google' | 'gemini' | 'viettts' | 'elevenlabs' | 'fpt' | 'viettel'
     apiKey: string
     googleCredentialsPath?: string
     voice: string
@@ -535,15 +535,58 @@ export default function SettingsPage() {
                   })
                 }
               >
-                <option value="gemini">Gemini TTS (Khuyên dùng - Đơn giản, chỉ cần API key)</option>
-                <option value="google">Google Cloud Text-to-Speech (Phức tạp - Cần Service Account)</option>
-                <option value="elevenlabs">ElevenLabs (Trả phí)</option>
-                <option value="fpt">FPT AI (Miễn phí)</option>
-                <option value="viettel">Viettel AI (Miễn phí)</option>
+                <option value="gemini">Gemini TTS (Đơn giản - Chỉ API key, Tiếng Anh)</option>
+                <option value="viettts">VietTTS (Miễn phí - Open Source, Offline, Tiếng Việt tự nhiên)</option>
+                <option value="google">Google Cloud TTS (Phức tạp - Service Account, Tiếng Việt)</option>
+                <option value="elevenlabs">ElevenLabs (Trả phí - Chất lượng cao)</option>
+                <option value="fpt">FPT AI (Miễn phí - API, Tiếng Việt)</option>
+                <option value="viettel">Viettel AI (Miễn phí - API, Tiếng Việt)</option>
               </select>
             </div>
 
-            {settings.tts.provider === 'gemini' ? (
+            {settings.tts.provider === 'viettts' ? (
+              <div>
+                <label className="label flex items-center gap-2">
+                  <Key className="w-4 h-4" />
+                  VietTTS - Open Source Offline
+                  <span className="text-xs text-green-400">(Miễn phí - Không cần API key)</span>
+                </label>
+
+                <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-3 text-xs text-slate-400 space-y-3">
+                  <p className="font-semibold text-slate-300 mb-2">📦 Cài đặt VietTTS:</p>
+
+                  <div className="bg-slate-800/50 rounded p-2 font-mono text-xs">
+                    <p className="text-green-400"># Cài Python 3.8+ (nếu chưa có)</p>
+                    <p className="text-white">pip install vietTTS</p>
+                    <p className="text-white">pip install soundfile</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="font-semibold text-slate-300">✨ Ưu điểm:</p>
+                    <ul className="list-disc list-inside ml-2 space-y-0.5">
+                      <li>✅ Hoàn toàn miễn phí & Open Source</li>
+                      <li>✅ Chạy offline - Không cần internet sau khi cài</li>
+                      <li>✅ Giọng Việt tự nhiên - Nhiều giọng Bắc/Nam/Trung</li>
+                      <li>✅ Không giới hạn sử dụng</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="font-semibold text-slate-300">⚠️ Lưu ý:</p>
+                    <ul className="list-disc list-inside ml-2 space-y-0.5">
+                      <li>Cần cài Python trên máy</li>
+                      <li>Lần đầu chạy sẽ tải models (~500MB)</li>
+                      <li>Chạy chậm hơn API (nhưng miễn phí!)</li>
+                      <li>Khuyên dùng GPU (CPU cũng được nhưng rất chậm)</li>
+                    </ul>
+                  </div>
+
+                  <p className="text-amber-400 mt-2">
+                    💡 Sau khi cài xong, chỉ cần chọn giọng và bấm "Lưu cài đặt"!
+                  </p>
+                </div>
+              </div>
+            ) : settings.tts.provider === 'gemini' ? (
               <div>
                 <label className="label flex items-center gap-2">
                   <Key className="w-4 h-4" />
@@ -656,6 +699,8 @@ export default function SettingsPage() {
                 placeholder={
                   settings.tts.provider === 'gemini'
                     ? 'VD: Puck, Charon, Kore, Fenrir, Aoede'
+                    : settings.tts.provider === 'viettts'
+                    ? 'VD: northern_female_1, southern_male_1'
                     : settings.tts.provider === 'google'
                     ? 'VD: vi-VN-Standard-A'
                     : 'VD: leminh, banmai'
@@ -664,6 +709,11 @@ export default function SettingsPage() {
               {settings.tts.provider === 'gemini' && (
                 <p className="text-xs text-slate-400 mt-1">
                   💡 Giọng Gemini: Puck, Charon (Nam) | Kore, Aoede (Nữ) | Fenrir (Mạnh mẽ)
+                </p>
+              )}
+              {settings.tts.provider === 'viettts' && (
+                <p className="text-xs text-slate-400 mt-1">
+                  💡 Giọng VietTTS: northern_female_1, northern_male_1 (Bắc) | southern_female_1, southern_male_1 (Nam) | central_female_1 (Trung)
                 </p>
               )}
             </div>

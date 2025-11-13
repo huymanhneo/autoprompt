@@ -25,7 +25,7 @@ export interface AppSettings {
     rotationStrategy: 'round-robin' | 'random' | 'fallback' // Chiến lược rotation
   }
   tts: {
-    provider: 'google' | 'gemini' | 'elevenlabs' | 'fpt' | 'viettel'
+    provider: 'google' | 'gemini' | 'viettts' | 'elevenlabs' | 'fpt' | 'viettel'
     apiKey: string // For Gemini, ElevenLabs, FPT, Viettel
     googleCredentialsPath?: string // For Google Cloud TTS Service Account JSON file
     voice: string
