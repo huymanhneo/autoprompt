@@ -41,10 +41,11 @@ export default function Step2OutlineGenerator({
       console.log('[Step2] Outline generated:', result)
       if (result.success) {
         setOutline(result.data)
-        // Save to project
+        // Save to project with status update
         await window.electronAPI.updateProject({
           id: project.id,
-          outline: result.data
+          outline: result.data,
+          status: 'outline_generated'
         })
         onUpdate({ outline: result.data })
       }

@@ -41,10 +41,16 @@ export default function Step3ContentWriter({
         }
         setChapters(updatedChapters)
 
-        // Save to database
+        // Check if all chapters are generated
+        const allGenerated = project.outline.chapters.every(
+          (_: any, idx: number) => idx === chapterNumber || updatedChapters[idx]?.content
+        )
+
+        // Save to database with status update if all chapters are done
         await window.electronAPI.updateProject({
           id: project.id,
-          chapters: updatedChapters
+          chapters: updatedChapters,
+          ...(allGenerated && { status: 'content_generated' })
         })
 
         onUpdate({ chapters: updatedChapters })

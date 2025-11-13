@@ -28,21 +28,35 @@ export default function ProjectPage() {
       const result = await window.electronAPI.getProject(projectId!)
       if (result.success) {
         setProject(result.data)
-        // Determine current step based on project status
-        const stepMap: Record<string, number> = {
-          initializing: 1,
-          outline_generated: 2,
-          content_generated: 3,
-          audio_generated: 4,
-          scenes_split: 6,
-          prompts_generated: 8,
+        // Only determine step on initial load (when loading is true)
+        if (loading) {
+          const stepMap: Record<string, number> = {
+            initializing: 1,
+            outline_generated: 2,
+            content_generated: 3,
+            audio_generated: 4,
+            scenes_split: 6,
+            prompts_generated: 8,
+          }
+          setCurrentStep(stepMap[result.data.status] || 1)
         }
-        setCurrentStep(stepMap[result.data.status] || 1)
       }
     } catch (error) {
       console.error('Error loading project:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Update project data without changing current step
+  const updateProjectData = async () => {
+    try {
+      const result = await window.electronAPI.getProject(projectId!)
+      if (result.success) {
+        setProject(result.data)
+      }
+    } catch (error) {
+      console.error('Error updating project:', error)
     }
   }
 
@@ -84,56 +98,56 @@ export default function ProjectPage() {
           <Step1ProjectInit
             project={project}
             onNext={() => setCurrentStep(2)}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
         {currentStep === 2 && (
           <Step2OutlineGenerator
             project={project}
             onNext={() => setCurrentStep(3)}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
         {currentStep === 3 && (
           <Step3ContentWriter
             project={project}
             onNext={() => setCurrentStep(4)}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
         {currentStep === 4 && (
           <Step4TTSGenerator
             project={project}
             onNext={() => setCurrentStep(5)}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
         {currentStep === 5 && (
           <Step5AudioMerger
             project={project}
             onNext={() => setCurrentStep(6)}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
         {currentStep === 6 && (
           <Step6SceneSplitter
             project={project}
             onNext={() => setCurrentStep(7)}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
         {currentStep === 7 && (
           <Step7CorePrompts
             project={project}
             onNext={() => setCurrentStep(8)}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
         {currentStep === 8 && (
           <Step8VideoPrompts
             project={project}
             onNext={() => alert('Hoàn thành!')}
-            onUpdate={loadProject}
+            onUpdate={updateProjectData}
           />
         )}
       </div>
