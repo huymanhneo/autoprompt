@@ -28,14 +28,20 @@ export default function Step3ContentWriter({
   const [generatingChapter, setGeneratingChapter] = useState<number | null>(null)
   const [selectedChapter, setSelectedChapter] = useState<number>(0)
   const [saving, setSaving] = useState(false)
+  const [projectIdRef, setProjectIdRef] = useState<string>(project.id)
 
-  // Sync chapters state ONLY on project ID change (not on every project.chapters change)
-  // This prevents local state from being overwritten during generation
+  // ONLY reload from DB when project ID actually changes (switching to different project)
+  // This prevents accidental resets when parent re-renders with same project
   useEffect(() => {
-    console.log('[Step3] Project ID changed, reloading chapters from DB')
-    const updatedChapters = initChapters()
-    setChapters(updatedChapters)
-  }, [project.id])
+    if (project.id !== projectIdRef) {
+      console.log('[Step3] Project switched, reloading chapters from DB')
+      setProjectIdRef(project.id)
+      const freshChapters = initChapters()
+      setChapters(freshChapters)
+    }
+    // Do NOT add project.id to dependency array - we handle it manually
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project.id, projectIdRef])
 
   // Helper function to clean content for display
   const cleanContentForDisplay = (content: string): string => {
