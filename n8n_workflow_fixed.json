@@ -1,0 +1,1053 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vbee.vn/api/v1/dubbing",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "accept-language",
+              "value": "vi,vi-VN;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ $('Edit Fields').item.json.Token }}"
+            },
+            {
+              "name": "origin",
+              "value": "https://studio.vbee.vn"
+            },
+            {
+              "name": "priority",
+              "value": "u=1, i"
+            },
+            {
+              "name": "referer",
+              "value": "https://studio.vbee.vn/"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-site"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('Edit Fields').item.json.title }}"
+            },
+            {
+              "name": "subtitleLink",
+              "value": "={{ $('1. Get Presigned URL1').item.json.result.url.split('?')[0] }}"
+            },
+            {
+              "name": "voiceCode",
+              "value": "hn_female_ngochuyen_full_48k-fhg"
+            },
+            {
+              "name": "audioType",
+              "value": "mp3"
+            },
+            {
+              "name": "speed",
+              "value": "1.15"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [64, -272],
+      "id": "3258f390-3916-4892-9e3f-44ff0094434b",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "https://vbee.vn/api/v1/files/presigned-url-for-uploading",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "extension",
+              "value": "srt"
+            },
+            {
+              "name": "directory",
+              "value": "subtitles"
+            },
+            {
+              "name": "fileName",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "accept-language",
+              "value": "vi,vi-VN;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ $json.Token }}"
+            },
+            {
+              "name": "origin",
+              "value": "https://studio.vbee.vn"
+            },
+            {
+              "name": "priority",
+              "value": "u=1, i"
+            },
+            {
+              "name": "referer",
+              "value": "https://studio.vbee.vn/"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-site"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-2800, -576],
+      "id": "1b99a2c0-c43a-484d-931b-6274c423a514",
+      "name": "1. Get Presigned URL1"
+    },
+    {
+      "parameters": {
+        "url": "https://vbee.vn/api/v1/requests",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "5"
+            },
+            {
+              "name": "sort",
+              "value": "createdAt_desc"
+            },
+            {
+              "name": "type",
+              "value": "DUBBING"
+            },
+            {
+              "name": "fields",
+              "value": "id,title,characters,seconds,createdAt,progress,status,voice,audioType,audioLink,retentionPeriod,processingAt"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "accept-language",
+              "value": "vi,vi-VN;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ $('Edit Fields').item.json.Token }}"
+            },
+            {
+              "name": "if-none-match",
+              "value": "W/\"3c-qWt0deO8/tq+u7mBDnEfeS4cB9I\""
+            },
+            {
+              "name": "origin",
+              "value": "https://studio.vbee.vn"
+            },
+            {
+              "name": "priority",
+              "value": "u=1, i"
+            },
+            {
+              "name": "referer",
+              "value": "https://studio.vbee.vn/"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-site"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [496, -288],
+      "id": "729a5e0e-8c7c-4bc5-9c8b-ed72b805dbe5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7207a629-9e1a-45e4-8f8f-0a7c2f822dd6",
+              "name": "title",
+              "value": "=final {{ $now.format('yyyy-MM-dd-hh-mm-ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "2c9f7982-92d2-4e0a-82e7-bd44e32d5d02",
+              "name": "Token",
+              "value": "Bearer YOUR_VBEE_TOKEN_HERE",
+              "type": "string"
+            },
+            {
+              "id": "8d8b0acf-7c92-46e6-9c7b-951fc30eb3b7",
+              "name": "idphim",
+              "value": "7539021350158093608",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-3024, -576],
+      "id": "6b341c1f-8f55-4806-854a-3e5529b0d676",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.result.requests[0].audio_link }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [896, -192],
+      "id": "731ddd3b-8451-4acb-bb7b-eb6262b4a4db",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-1"
+            },
+            {
+              "name": "response_format",
+              "value": "srt"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1680, -480],
+      "id": "05fd2764-5bdf-402f-8563-bd5948da284e",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "mp4_hd_url",
+              "cssSelector": "p:nth-of-type(3) > a.tik-button-dl",
+              "returnValue": "attribute",
+              "attribute": "href"
+            },
+            {
+              "key": "mp3_url",
+              "cssSelector": "p:nth-of-type(4) > a.tik-button-dl",
+              "returnValue": "attribute",
+              "attribute": "href"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [-2352, -576],
+      "id": "7244ab47-b183-445c-b394-c8d8e40b120e",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.mp3_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1904, -480],
+      "id": "2b4b850d-2b06-4abb-97b9-0da21459e9e1",
+      "name": "Download Audio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "741e3715-b246-4ea6-9539-1304a0b0bdc5",
+              "name": "mp4_hd_url",
+              "value": "={{ $json.mp4_hd_url }}",
+              "type": "string"
+            },
+            {
+              "id": "ff34c385-a849-4505-83ba-aa87f40aecca",
+              "name": "mp3_url",
+              "value": "={{ $json.mp3_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-2128, -576],
+      "id": "7422cb28-4d35-442a-9da1-afb8729c4fcd",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://savetik.io/api/ajaxSearch",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Origin",
+              "value": "https://savetik.io"
+            },
+            {
+              "name": "Referer",
+              "value": "https://savetik.io/vi/douyin-video-downloader"
+            },
+            {
+              "name": "X-Requested-With",
+              "value": "XMLHttpRequest"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/x-www-form-urlencoded; charset=UTF-8",
+        "body": "=q=https%3A%2F%2Fwww.douyin.com%2Fvideo%2F{{ $('Edit Fields').item.json.idphim }}&cursor=0&page=0&lang=vi\n``\n",
+        "options": {
+          "proxy": "http://vs62494:s8Kt6eI4@160.187.244.67:62494"
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-2576, -576],
+      "id": "1b8e9e70-fc30-4882-90fb-dde3481bd283",
+      "name": "Douyon"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [-1216, -896],
+      "id": "adec5190-6aa8-44db-9462-107fb33663df",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "buGMjU5l2SBJDpBN",
+          "name": "1-Google Gemini-dayboivip"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "merged_srt",
+        "options": {
+          "encoding": "utf8",
+          "fileName": "output.srt"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [-240, -480],
+      "id": "487aba0e-7f1f-463a-852c-fee4d32f2cef",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "Tôi sẽ cung cấp cho bạn 1 đoạn văn bản srt, việc của bạn là dựa vào nội dung của nó  tạo sub tiếng việt thay thế cho chữ tiếng trung đó cho thật phù hợp, không được thay đổi thời gian, mốc thời gian phải giữ nguyên,\n\nSau khi đã tạo xong file srt hãy dùng gemini để kiểm tra xem  có vấn đề gì không, thời gian có bị lệch không, câu từ dịch đã chuẩn chưa, có lẫn ký tự đặc biệt hay gì không,nếu mọi thứ đã oke thì kết quả trả về 1 file srt duy nhất không nói gì thêm. Dịch cần chuẩn, hấp dẫn, rõ ràng và không bị tối nghĩa giúp người nghe dễ hiểu. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [-1456, -480],
+      "id": "c3282f39-f832-4c83-a9e0-15b8c1680d77",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// =================================================================\n// CHỈNH SỬA SỐ Ở DÒNG DƯỚI ĐÂY\n// Đây là số lượng câu (subtitle block) trong mỗi file SRT được tách ra.\nconst soCauMoiLanGen = 25;\n// =================================================================\n\n// --- CÁC HÀM HỖ TRỢ XỬ LÝ THỜI GIAN ---\n\n/**\n * Chuyển đổi chuỗi thời gian SRT (HH:MM:SS,ms) thành milliseconds.\n * @param {string} timeString - Chuỗi thời gian như \"00:01:32,543\".\n * @returns {number} - Tổng số milliseconds.\n */\nfunction timeToMs(timeString) {\n  const parts = timeString.split(/:|,/);\n  const hours = parseInt(parts[0], 10);\n  const minutes = parseInt(parts[1], 10);\n  const seconds = parseInt(parts[2], 10);\n  const milliseconds = parseInt(parts[3], 10);\n  return (hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;\n}\n\n/**\n * Chuyển đổi milliseconds thành chuỗi thời gian SRT (HH:MM:SS,ms).\n * @param {number} ms - Tổng số milliseconds.\n * @returns {string} - Chuỗi thời gian được định dạng.\n */\nfunction msToTime(ms) {\n  if (ms < 0) ms = 0; // Đảm bảo thời gian không bao giờ là số âm\n  \n  const hours = Math.floor(ms / 3600000);\n  ms %= 3600000;\n  const minutes = Math.floor(ms / 60000);\n  ms %= 60000;\n  const seconds = Math.floor(ms / 1000);\n  const milliseconds = ms % 1000;\n\n  return (\n    String(hours).padStart(2, '0') + ':' +\n    String(minutes).padStart(2, '0') + ':' +\n    String(seconds).padStart(2, '0') + ',' +\n    String(milliseconds).padStart(3, '0')\n  );\n}\n\n\n// --- LOGIC CHÍNH ---\n\nconst srtInput = items[0].json.output;\n\nif (!srtInput || typeof srtInput !== 'string') {\n  console.log(\"Không tìm thấy dữ liệu SRT hoặc định dạng không đúng.\");\n  return [];\n}\n\nconst tatCaCacCau = srtInput.split('\\n\\n').filter(block => block.trim() !== '');\nconst itemsKetQua = [];\n\n// Lặp qua mảng các câu và chia chúng thành các phần nhỏ hơn\nfor (let i = 0; i < tatCaCacCau.length; i += soCauMoiLanGen) {\n  const motPhanCuaCau = tatCaCacCau.slice(i, i + soCauMoiLanGen);\n\n  if (motPhanCuaCau.length === 0) {\n    continue; // Bỏ qua nếu đoạn rỗng\n  }\n\n  // 1. TÌM GIÁ TRỊ BAN ĐẦU\n  const firstBlock = motPhanCuaCau[0];\n  \n  // Lấy thời gian bắt đầu của câu đầu tiên để làm offset\n  const timeMatch = firstBlock.match(/(\\d{2}:\\d{2}:\\d{2},\\d{3}) -->/);\n  const firstStartTimeString = timeMatch ? timeMatch[1] : '00:00:00,000';\n  const offsetMs = timeToMs(firstStartTimeString);\n\n  // Lấy số thứ tự của câu đầu tiên để làm offset\n  const indexMatch = firstBlock.match(/^(\\d+)/);\n  const firstIndex = indexMatch ? parseInt(indexMatch[1], 10) : 1;\n\n  // 2. ĐIỀU CHỈNH LẠI THỜI GIAN VÀ SỐ THỨ TỰ CHO CẢ ĐOẠN\n  const chunkDaSua = motPhanCuaCau.map((block, localIndex) => {\n    const lines = block.split('\\n');\n    if (lines.length < 2) {\n      return block; // Trả về block gốc nếu không hợp lệ\n    }\n    \n    // Sửa số thứ tự\n    const originalIndexMatch = lines[0].match(/^(\\d+)/);\n    if (originalIndexMatch) {\n      const originalIndex = parseInt(originalIndexMatch[1], 10);\n      // Thay bằng số thứ tự mới: (chỉ số hiện tại - chỉ số đầu) + 1\n      // Hoặc đơn giản là chỉ số trong mảng con + 1\n      lines[0] = localIndex + 1;\n    }\n    \n    // Sửa thời gian\n    const timeLine = lines[1];\n    const match = timeLine.match(/(\\d{2}:\\d{2}:\\d{2},\\d{3}) --> (\\d{2}:\\d{2}:\\d{2},\\d{3})/);\n\n    if (match) {\n      const startTimeStr = match[1];\n      const endTimeStr = match[2];\n\n      // Chuyển đổi, trừ đi offset, và chuyển đổi lại\n      const newStartMs = timeToMs(startTimeStr) - offsetMs;\n      const newEndMs = timeToMs(endTimeStr) - offsetMs;\n\n      const newStartTimeStr = msToTime(newStartMs);\n      const newEndTimeStr = msToTime(newEndMs);\n      \n      // Cập nhật lại dòng thời gian\n      lines[1] = `${newStartTimeStr} --> ${newEndTimeStr}`;\n      return lines.join('\\n');\n    }\n    \n    return block; // Trả về block gốc nếu không tìm thấy thời gian\n  });\n\n  // 3. GHÉP CÁC CÂU ĐÃ SỬA VÀ THÊM VÀO KẾT QUẢ\n  const srtChunk = chunkDaSua.join('\\n\\n');\n  itemsKetQua.push({\n    json: {\n      output_srt: srtChunk\n    }\n  });\n}\n\n// 4. TRẢ VỀ KẾT QUẢ\nreturn itemsKetQua;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1072, -464],
+      "id": "7bcb0e80-fd86-4a51-8e23-9b591a9dd64f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [-736, -464],
+      "id": "b08f51ba-39ca-4ce0-8ab0-7cbcd34ef7f0",
+      "name": "Loop Over Items",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "command": "rm -rf tmp/n8n/youtubehuymanh && mkdir -p tmp/n8n/youtubehuymanh "
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [-3248, -576],
+      "id": "5560ea36-3ca0-485e-9071-896997608335",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=tmp/n8n/youtubehuymanh/{{ $now.format('yyyy-MM-dd-hh-mm-ss') }}.mp3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [1104, -48],
+      "id": "4d8962d6-d6c6-4a7e-91ce-cc0d23139ce1",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "command": "cd tmp/n8n/youtubehuymanh/ && \\\n# Kiểm tra file SRT tồn tại\nif [ ! -f \"output.srt\" ]; then echo \"ERROR: output.srt not found!\"; exit 1; fi && \\\n# Lấy đường dẫn tuyệt đối\nSRT_PATH=$(pwd)/output.srt && \\\n# Tạo merged voiceover\nfind . -maxdepth 1 -name \"*.mp3\" -not -name \"bgrmusic.mp3\" -printf \"file '%p'\\n\" | sort > mylist.txt && \\\nffmpeg -y -f concat -safe 0 -i mylist.txt -c copy merged_voiceover.mp3 && \\\n# Xử lý video với blur zone và subtitle\nffmpeg -y -i video_download.mp4 -i merged_voiceover.mp3 -stream_loop -1 -i bgrmusic.mp3 \\\n  -filter_complex \"\\\n    [0:v]eq=brightness=0.03:contrast=1.08:saturation=1.12,\\\n         hflip,\\\n         crop=iw*0.92:ih*0.92,\\\n         scale=iw:ih,\\\n         unsharp=5:5:0.8:5:5:0.0,\\\n         vignette=PI/5[v1];\\\n    [v1]split[main][blur];\\\n    [blur]crop=iw:180:0:ih-180,boxblur=15:5[blurred];\\\n    [main][blurred]overlay=0:H-180[v2];\\\n    [v2]subtitles='$SRT_PATH':force_style='FontName=Arial,FontSize=26,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2,Shadow=1,Bold=1,Alignment=2,MarginV=30',\\\n         setpts=0.98*PTS,\\\n         setsar=1[v];\\\n    [1:a]atempo=1.02,volume=1.0[voice];\\\n    [2:a]atempo=1.02,volume=0.45,bass=g=3[bg];\\\n    [voice][bg]amix=inputs=2:duration=first[a]\" \\\n  -map \"[v]\" -map \"[a]\" \\\n  -c:v libx264 -preset medium -crf 22 \\\n  -c:a aac -b:a 192k \\\n  -r 29.97 \\\n  -map_metadata -1 \\\n  -shortest final_video.mp4 && \\\nrm mylist.txt merged_voiceover.mp3"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1008, -832],
+      "id": "e6b45487-17bf-4436-89a7-088ec0b934c1",
+      "name": "Execute Command1",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.mp4_hd_url }}",
+        "options": {
+          "proxy": "http://vs62494:s8Kt6eI4@160.187.244.67:62494"
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1904, -672],
+      "id": "9e20208c-a4c7-4e84-85e4-a07b16af12b1",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "tmp/n8n/youtubehuymanh/video_download.mp4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [-1680, -672],
+      "id": "802d4e24-acd4-460b-b292-89556512be09",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "tmp/n8n/youtubehuymanh/bgrmusic.mp3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [160, -832],
+      "id": "89ac4f77-a1b8-46f6-be49-be080452d713",
+      "name": "Read/Write Files from Disk2"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/1QwEMSZN5YcCW-a2fE5PO3JAeNLN_76ig/view?usp=drive_link",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [-64, -832],
+      "id": "edfd610b-24c8-4dd0-b72b-d8ac6e8d5d51",
+      "name": "Download file",
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YrpxuDEWKbz1HOhH",
+          "name": "thanhdd_ytbusa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fileSelector": "tmp/n8n/youtubehuymanh/final_video.mp4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [1232, -832],
+      "id": "1a667ff2-9300-423c-9c65-a380e5a69e94",
+      "name": "Read/Write Files from Disk3"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('1. Get Presigned URL1').item.json.result.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "vi,vi-VN;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://studio.vbee.vn"
+            },
+            {
+              "name": "Referer",
+              "value": "https://studio.vbee.vn/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "cross-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [16, -480],
+      "id": "683f0db0-3dd9-40e7-8cba-b92b2d2a511a",
+      "name": "Put data"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.result.requests[0].status }}",
+                    "rightValue": "FAILURE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9c11eff9-c3f2-4276-983e-94cc87f569d0"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FAILURE"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a3f6a7d2-a8f3-4959-8332-759e6f4100c8",
+                    "leftValue": "={{ $json.result.requests[0].status }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "IN_PROGRESS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5f14918e-6355-4fcf-a4e4-25ae551d63e0",
+                    "leftValue": "={{ $json.result.requests[0].status }}",
+                    "rightValue": "SUCCESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SUCCESS"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [704, -320],
+      "id": "5bb7a1cb-1f1a-43e7-98e3-da3c5a7d763c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09bea987-f996-452f-b719-4c9ee0dc09fd",
+              "name": "counter1",
+              "value": "1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [256, -240],
+      "id": "654943ef-8a63-4bdc-ae9c-9987becb4b9b",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1152, -240],
+      "id": "45bcf931-d6ab-4727-9b67-65b22437623c",
+      "name": "Wait1",
+      "webhookId": "2cbbfbc8-8a69-48cb-8eaa-4bae8484e299"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fc0ff4d9-2cbf-460a-bb85-adb9afc711a6",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 10,
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [976, -544],
+      "id": "8a924e47-4672-4519-a512-7d91a890bf42",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1248, -544],
+      "id": "5f6df6dd-5461-4690-8129-80c4e20ba2ac",
+      "name": "Wait2",
+      "webhookId": "1f56c37f-a130-496e-878e-ab04b7f0e446"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-3520, -592],
+      "id": "fceb80ac-ff3c-4ebf-aa54-98d1201a2bf3",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\"Tôi có một file SRT chứa nội dung của một video. Dựa vào nội dung trong file SRT này, hãy phân tích và chia video thành 1 tình huống/phân cảnh chính.\nVới mỗi tình huống, hãy tạo ra 3 thành phần sau:\n\nTình huống: Một dòng tóm tắt ngắn gọn, IN HOA, mô tả sự kiện chính của phân cảnh đó.\n\nCaption: Một đoạn văn ngắn (khoảng 2-3 câu) diễn giải chi tiết hơn về tình huống, làm rõ bối cảnh và hành động của nhân vật.\n\nHashtag: Luôn bao gồm các hashtag sau: #vdrama #phim #phimngan #phimtrungquoc #reviewphim\n\nĐây là nội dung file SRT:\n{{ $('AI Agent').item.json.output }}\nHãy đảm bảo kết quả trả về có định dạng giống hệt như ví dụ sau:\n\nVí dụ:\n1. Tình huống: SHIPPER GIAO HÀNG BẰNG XE XỊN LÊN TOP TÌM KIẾM\nCaption: Chỉ sau một đêm, anh shipper nghèo bỗng nổi tiếng khắp cõi mạng chỉ vì đi giao hàng bằng siêu xe.\n#vdrama #phim #phimngan #phimtrungquoc #reviewphim\n\n2. Tình huống: ÂM MƯU BÍ MẬT CỦA NGƯỜI ANH TRAI LẠ MẶT VỚI TIỂU THƯ\nCaption: Một người anh trai lạ mặt đột ngột xuất hiện, che giấu âm mưu đen tối nhắm vào cô tiểu thư ngây thơ.\n#vdrama #phim #phimngan #phimtrungquoc #reviewphim\"\n\noutput format:\n{\n  \"tinh_huong\": \"SHIPPER GIAO HÀNG BẰNG XE XỊN LÊN TOP TÌM KIẾM\",\n  \"caption\": \"Chỉ sau một đêm, anh shipper nghèo bỗng nổi tiếng khắp cõi mạng chỉ vì đi giao hàng bằng siêu xe.\",\n  \"hashtags\": \"#vdrama #phim #phimngan #phimtrungquoc #reviewphim\"\n}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "\"Tôi có một file SRT chứa nội dung của một video. Dựa vào nội dung trong file SRT này, hãy phân tích và chia video thành 1 tình huống/phân cảnh chính.\nVới mỗi tình huống, hãy tạo ra 3 thành phần sau:\n\nTình huống: Một dòng tóm tắt ngắn gọn, IN HOA, mô tả sự kiện chính của phân cảnh đó.\n\nCaption: Một đoạn văn ngắn (khoảng 2-3 câu) diễn giải chi tiết hơn về tình huống, làm rõ bối cảnh và hành động của nhân vật.\n\nHashtag: Luôn bao gồm các hashtag sau: #vdrama #phim #phimngan #phimtrungquoc #reviewphim\n\nĐây là nội dung file SRT:\n\nHãy đảm bảo kết quả trả về có định dạng giống hệt như ví dụ sau:\n\nVí dụ:\n1. Tình huống: SHIPPER GIAO HÀNG BẰNG XE XỊN LÊN TOP TÌM KIẾM\nCaption: Chỉ sau một đêm, anh shipper nghèo bỗng nổi tiếng khắp cõi mạng chỉ vì đi giao hàng bằng siêu xe.\n#vdrama #phim #phimngan #phimtrungquoc #reviewphim\n\n2. Tình huống: ÂM MƯU BÍ MẬT CỦA NGƯỜI ANH TRAI LẠ MẶT VỚI TIỂU THƯ\nCaption: Một người anh trai lạ mặt đột ngột xuất hiện, che giấu âm mưu đen tối nhắm vào cô tiểu thư ngây thơ.\n#vdrama #phim #phimngan #phimtrungquoc #reviewphim\""
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [-448, -832],
+      "id": "8821c253-fdbf-4d48-bdc5-f51521e92bf2",
+      "name": "Basic LLM Chain",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"tinh_huong\": \"SHIPPER GIAO HÀNG BẰNG XE XỊN LÊN TOP TÌM KIẾM\",\n  \"caption\": \"Chỉ sau một đêm, anh shipper nghèo bỗng nổi tiếng khắp cõi mạng chỉ vì đi giao hàng bằng siêu xe.\",\n  \"hashtags\": \"#vdrama #phim #phimngan #phimtrungquoc #reviewphim\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [-352, -640],
+      "id": "766e1c17-619c-4b54-b1dd-7ba78b35859e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ghép tất cả các chunks SRT đã dịch thành 1 file SRT hoàn chỉnh\nconst allChunks = [];\n\n// Lấy tất cả chunks từ loop\nfor (let i = 0; i < items.length; i++) {\n  const chunk = items[i].json.output_srt || items[i].json.text || '';\n  if (chunk && chunk.trim()) {\n    allChunks.push(chunk.trim());\n  }\n}\n\n// Ghép lại thành file SRT hoàn chỉnh\nconst fullSRT = allChunks.join('\\n\\n');\n\n// Đánh lại số thứ tự cho các subtitle blocks\nconst blocks = fullSRT.split('\\n\\n').filter(b => b.trim());\nconst renumbered = blocks.map((block, index) => {\n  const lines = block.split('\\n');\n  if (lines.length >= 2) {\n    lines[0] = String(index + 1); // Đánh lại số thứ tự\n    return lines.join('\\n');\n  }\n  return block;\n});\n\nconst finalSRT = renumbered.join('\\n\\n');\n\nreturn [{\n  json: {\n    merged_srt: finalSRT\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, -480],
+      "id": "merge-srt-chunks-node",
+      "name": "Merge SRT Chunks"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "tmp/n8n/youtubehuymanh/output.srt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [-80, -480],
+      "id": "save-srt-to-disk-node",
+      "name": "Save SRT to Disk"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [608, -832],
+      "id": "merge-all-files-node",
+      "name": "Wait for All Files"
+    }
+  ],
+  "connections": {
+    "HTTP Request1": {
+      "main": [[{"node": "Edit Fields3", "type": "main", "index": 0}]]
+    },
+    "1. Get Presigned URL1": {
+      "main": [[{"node": "Douyon", "type": "main", "index": 0}]]
+    },
+    "HTTP Request": {
+      "main": [[{"node": "Switch", "type": "main", "index": 0}]]
+    },
+    "Edit Fields": {
+      "main": [[{"node": "1. Get Presigned URL1", "type": "main", "index": 0}]]
+    },
+    "HTTP Request2": {
+      "main": [[{"node": "Read/Write Files from Disk", "type": "main", "index": 0}]]
+    },
+    "HTTP Request3": {
+      "main": [[{"node": "AI Agent", "type": "main", "index": 0}]]
+    },
+    "HTML": {
+      "main": [[{"node": "Edit Fields1", "type": "main", "index": 0}]]
+    },
+    "Download Audio": {
+      "main": [[{"node": "HTTP Request3", "type": "main", "index": 0}]]
+    },
+    "Edit Fields1": {
+      "main": [[{"node": "Download Audio", "type": "main", "index": 0}, {"node": "HTTP Request4", "type": "main", "index": 0}]]
+    },
+    "Douyon": {
+      "main": [[{"node": "HTML", "type": "main", "index": 0}]]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [[{"node": "AI Agent", "type": "ai_languageModel", "index": 0}, {"node": "Basic LLM Chain", "type": "ai_languageModel", "index": 0}]]
+    },
+    "Convert to File": {
+      "main": [[{"node": "Save SRT to Disk", "type": "main", "index": 0}]]
+    },
+    "AI Agent": {
+      "main": [[{"node": "Code in JavaScript", "type": "main", "index": 0}]]
+    },
+    "Code in JavaScript": {
+      "main": [[{"node": "Loop Over Items", "type": "main", "index": 0}]]
+    },
+    "Loop Over Items": {
+      "main": [
+        [{"node": "Basic LLM Chain", "type": "main", "index": 0}],
+        [{"node": "Merge SRT Chunks", "type": "main", "index": 0}]
+      ]
+    },
+    "Execute Command": {
+      "main": [[{"node": "Edit Fields", "type": "main", "index": 0}]]
+    },
+    "Read/Write Files from Disk": {
+      "main": [[{"node": "Wait for All Files", "type": "main", "index": 1}]]
+    },
+    "Execute Command1": {
+      "main": [[{"node": "Read/Write Files from Disk3", "type": "main", "index": 0}]]
+    },
+    "HTTP Request4": {
+      "main": [[{"node": "Read/Write Files from Disk1", "type": "main", "index": 0}]]
+    },
+    "Read/Write Files from Disk2": {
+      "main": [[{"node": "Wait for All Files", "type": "main", "index": 0}]]
+    },
+    "Download file": {
+      "main": [[{"node": "Read/Write Files from Disk2", "type": "main", "index": 0}]]
+    },
+    "Put data": {
+      "main": [[{"node": "HTTP Request1", "type": "main", "index": 0}]]
+    },
+    "Switch": {
+      "main": [
+        [{"node": "If1", "type": "main", "index": 0}],
+        [{"node": "Wait1", "type": "main", "index": 0}],
+        [{"node": "HTTP Request2", "type": "main", "index": 0}]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [[{"node": "HTTP Request", "type": "main", "index": 0}]]
+    },
+    "Wait1": {
+      "main": [[{"node": "HTTP Request", "type": "main", "index": 0}]]
+    },
+    "If1": {
+      "main": [[{"node": "Wait2", "type": "main", "index": 0}]]
+    },
+    "Wait2": {
+      "main": [[{"node": "HTTP Request", "type": "main", "index": 0}]]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [[{"node": "Execute Command", "type": "main", "index": 0}]]
+    },
+    "Basic LLM Chain": {
+      "main": [[{"node": "Download file", "type": "main", "index": 0}]]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [[{"node": "Basic LLM Chain", "type": "ai_outputParser", "index": 0}]]
+    },
+    "Merge SRT Chunks": {
+      "main": [[{"node": "Convert to File", "type": "main", "index": 0}]]
+    },
+    "Save SRT to Disk": {
+      "main": [[{"node": "Put data", "type": "main", "index": 0}, {"node": "Wait for All Files", "type": "main", "index": 2}]]
+    },
+    "Wait for All Files": {
+      "main": [[{"node": "Execute Command1", "type": "main", "index": 0}]]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52a362857b6a8ea6c25d2dfbe44e654c806e2b05b88b56c5e8d6ebd561cc0880"
+  }
+}
