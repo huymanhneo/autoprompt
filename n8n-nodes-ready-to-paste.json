@@ -1,0 +1,174 @@
+{
+  "meta": {
+    "title": "2 Node Mới Để Sửa Lỗi Presigned URL",
+    "description": "Copy 2 node này vào workflow của bạn",
+    "instruction": "Xem file IMPORT-INSTRUCTIONS.md để biết cách import"
+  },
+  "new_nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7207a629-9e1a-45e4-8f8f-0a7c2f822dd6",
+              "name": "title",
+              "value": "={{ $('Edit Fields').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "2c9f7982-92d2-4e0a-82e7-bd44e32d5d02",
+              "name": "Token",
+              "value": "={{ $('Edit Fields').item.json.Token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "includeOtherFields": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3000,
+        368
+      ],
+      "id": "GENERATE-NEW-ID-1",
+      "name": "Preserve Data"
+    },
+    {
+      "parameters": {
+        "url": "https://vbee.vn/api/v1/files/presigned-url-for-uploading",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "extension",
+              "value": "srt"
+            },
+            {
+              "name": "directory",
+              "value": "subtitles"
+            },
+            {
+              "name": "fileName",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "accept-language",
+              "value": "vi,vi-VN;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ $json.Token }}"
+            },
+            {
+              "name": "origin",
+              "value": "https://studio.vbee.vn"
+            },
+            {
+              "name": "priority",
+              "value": "u=1, i"
+            },
+            {
+              "name": "referer",
+              "value": "https://studio.vbee.vn/"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-site"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "includeOtherFields": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2880,
+        368
+      ],
+      "id": "GENERATE-NEW-ID-2",
+      "name": "Get Fresh Presigned URL"
+    }
+  ],
+  "modified_node": {
+    "name": "Put data",
+    "id": "683f0db0-3dd9-40e7-8cba-b92b2d2a511a",
+    "change": {
+      "field": "parameters.url",
+      "from": "={{ $('1. Get Presigned URL1').item.json.result.url }}",
+      "to": "={{ $json.result.url }}"
+    }
+  },
+  "new_connections": {
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Preserve Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preserve Data": {
+      "main": [
+        [
+          {
+            "node": "Get Fresh Presigned URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Fresh Presigned URL": {
+      "main": [
+        [
+          {
+            "node": "Put data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

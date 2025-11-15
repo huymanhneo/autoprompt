@@ -1,0 +1,165 @@
+{
+  "comment": "COPY 2 NODE BÊN DƯỚI VÀ PASTE VÀO MẢNG 'nodes' TRONG WORKFLOW JSON CỦA BẠN (SAU NODE 'Convert to File')",
+  "copy_these_2_nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "preserve-title-uuid",
+              "name": "title",
+              "value": "={{ $('Edit Fields').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "preserve-token-uuid",
+              "name": "Token",
+              "value": "={{ $('Edit Fields').item.json.Token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "includeOtherFields": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3000,
+        368
+      ],
+      "id": "preserve-data-new-node-id",
+      "name": "Preserve Data"
+    },
+    {
+      "parameters": {
+        "url": "https://vbee.vn/api/v1/files/presigned-url-for-uploading",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "extension",
+              "value": "srt"
+            },
+            {
+              "name": "directory",
+              "value": "subtitles"
+            },
+            {
+              "name": "fileName",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "accept-language",
+              "value": "vi,vi-VN;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ $json.Token }}"
+            },
+            {
+              "name": "origin",
+              "value": "https://studio.vbee.vn"
+            },
+            {
+              "name": "priority",
+              "value": "u=1, i"
+            },
+            {
+              "name": "referer",
+              "value": "https://studio.vbee.vn/"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-site"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "includeOtherFields": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2880,
+        368
+      ],
+      "id": "get-fresh-url-new-node-id",
+      "name": "Get Fresh Presigned URL"
+    }
+  ],
+  "and_add_these_connections": {
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Preserve Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preserve Data": {
+      "main": [
+        [
+          {
+            "node": "Get Fresh Presigned URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Fresh Presigned URL": {
+      "main": [
+        [
+          {
+            "node": "Put data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "and_modify_put_data_node": {
+    "find": "\"url\": \"={{ $('1. Get Presigned URL1').item.json.result.url }}\"",
+    "replace_with": "\"url\": \"={{ $json.result.url }}\""
+  }
+}
