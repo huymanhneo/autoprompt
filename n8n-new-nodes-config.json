@@ -1,0 +1,159 @@
+{
+  "nodes_to_add": [
+    {
+      "node_name": "Preserve Data",
+      "node_type": "n8n-nodes-base.set",
+      "description": "Node này giữ lại title và Token từ Edit Fields, đồng thời preserve binary data",
+      "position_after": "Convert to File",
+      "position_before": "Put data",
+      "configuration": {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "preserve-title",
+                "name": "title",
+                "value": "={{ $('Edit Fields').item.json.title }}",
+                "type": "string"
+              },
+              {
+                "id": "preserve-token",
+                "name": "Token",
+                "value": "={{ $('Edit Fields').item.json.Token }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {
+            "includeOtherFields": true
+          }
+        }
+      }
+    },
+    {
+      "node_name": "Get Fresh Presigned URL",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "description": "Lấy presigned URL mới ngay trước khi upload để tránh hết hạn",
+      "position_after": "Preserve Data",
+      "position_before": "Put data",
+      "configuration": {
+        "parameters": {
+          "url": "https://vbee.vn/api/v1/files/presigned-url-for-uploading",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "extension",
+                "value": "srt"
+              },
+              {
+                "name": "directory",
+                "value": "subtitles"
+              },
+              {
+                "name": "fileName",
+                "value": "={{ $json.title }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json, text/plain, */*"
+              },
+              {
+                "name": "accept-language",
+                "value": "vi,vi-VN;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5"
+              },
+              {
+                "name": "authorization",
+                "value": "={{ $json.Token }}"
+              },
+              {
+                "name": "origin",
+                "value": "https://studio.vbee.vn"
+              },
+              {
+                "name": "priority",
+                "value": "u=1, i"
+              },
+              {
+                "name": "referer",
+                "value": "https://studio.vbee.vn/"
+              },
+              {
+                "name": "sec-ch-ua",
+                "value": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\""
+              },
+              {
+                "name": "sec-ch-ua-mobile",
+                "value": "?0"
+              },
+              {
+                "name": "sec-ch-ua-platform",
+                "value": "\"Windows\""
+              },
+              {
+                "name": "sec-fetch-dest",
+                "value": "empty"
+              },
+              {
+                "name": "sec-fetch-mode",
+                "value": "cors"
+              },
+              {
+                "name": "sec-fetch-site",
+                "value": "same-site"
+              },
+              {
+                "name": "user-agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+              }
+            ]
+          },
+          "options": {
+            "includeOtherFields": true
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2
+      }
+    }
+  ],
+  "nodes_to_modify": [
+    {
+      "node_name": "Put data",
+      "changes": [
+        {
+          "field": "url",
+          "old_value": "={{ $('1. Get Presigned URL1').item.json.result.url }}",
+          "new_value": "={{ $json.result.url }}",
+          "reason": "Sử dụng presigned URL mới từ node 'Get Fresh Presigned URL' thay vì URL cũ đã hết hạn"
+        }
+      ]
+    }
+  ],
+  "new_connection_flow": {
+    "description": "Thứ tự kết nối mới của các node",
+    "flow": [
+      "Convert to File",
+      "→ Preserve Data (NEW)",
+      "→ Get Fresh Presigned URL (NEW)",
+      "→ Put data",
+      "→ HTTP Request1",
+      "→ Edit Fields3",
+      "→ HTTP Request",
+      "→ Switch",
+      "→ ..."
+    ]
+  },
+  "quick_fix_summary": {
+    "problem": "Presigned URL hết hạn sau 180 giây nhưng workflow xử lý lâu hơn",
+    "solution": "Lấy presigned URL mới ngay trước khi upload",
+    "nodes_to_add": 2,
+    "nodes_to_modify": 1,
+    "estimated_fix_time": "5 phút"
+  }
+}
